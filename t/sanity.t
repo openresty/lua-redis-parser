@@ -98,7 +98,7 @@ res == Bad argument\rHey\n"
 
 
 
-=== TEST 3: good integer reply
+=== TEST 4: good integer reply
 --- sql
 --- lua
 parser = require("redis.parser")
@@ -111,4 +111,36 @@ print("res type == " .. type(res))
 typ == 3 == 3
 res == -32
 res type == number
+
+
+
+=== TEST 5: non-numeric integer reply
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = ':abc\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.INTEGER_REPLY)
+print("res == " .. res)
+print("res type == " .. type(res))
+--- out
+typ == 3 == 3
+res == 0
+res type == number
+
+
+
+=== TEST 6: bad integer reply
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = ':12\r'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BAD_REPLY)
+print("res == " .. res)
+print("res type == " .. type(res))
+--- out
+typ == 0 == 0
+res == bad integer reply
+res type == string
 
