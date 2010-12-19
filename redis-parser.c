@@ -16,14 +16,19 @@ enum {
     MULTI_BULK_REPLY    = 5
 };
 
+enum {
+    PARSE_OK    = 0,
+    PARSE_ERROR = 1
+};
+
 
 static int redis_parse_reply(lua_State *L);
 static const char * parse_single_line_reply(const char *src, const char *last,
         size_t *dst_len);
 static const char * parse_bulk_reply(const char *src, const char *last,
         size_t *dst_len);
-static const char * parse_multi_bulk_reply(const char *src, const char *last,
-        size_t *dst_len);
+static int parse_multi_bulk_reply(lua_State *L, const char *src,
+        const char *last);
 
 
 static const struct luaL_Reg redis_parser[] = {
@@ -67,6 +72,7 @@ redis_parse_reply(lua_State *L)
     const char      *dst;
     size_t           dst_len;
     lua_Number       num;
+    int              rc;
 
     if (lua_gettop(L) != 1) {
         return luaL_error(L, "expected one argument but got %d",
@@ -88,7 +94,7 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_single_line_reply(p, last, &dst_len);
 
-        if (dst_len == -1) {
+        if (dst_len == -2) {
             lua_pushliteral(L, "bad status reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
@@ -102,7 +108,7 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_single_line_reply(p, last, &dst_len);
 
-        if (dst_len == -1) {
+        if (dst_len == -2) {
             lua_pushliteral(L, "bad error reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
@@ -116,7 +122,7 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_single_line_reply(p, last, &dst_len);
 
-        if (dst_len == -1) {
+        if (dst_len == -2) {
             lua_pushliteral(L, "bad integer reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
@@ -132,13 +138,13 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_bulk_reply(p, last, &dst_len);
 
-        if (dst_len == -1) {
+        if (dst_len == -2) {
             lua_pushliteral(L, "bad bulk reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
         }
 
-        if (dst_len == 0) {
+        if (dst_len == -1) {
             lua_pushnil(L);
             lua_pushnumber(L, BULK_REPLY);
             return 2;
@@ -150,15 +156,16 @@ redis_parse_reply(lua_State *L)
 
     case '*':
         p++;
-        dst = parse_multi_bulk_reply(p, last, &dst_len);
+        rc = parse_multi_bulk_reply(L, p, last);
 
-        if (dst == NULL) {
+        if (rc != PARSE_OK) {
             lua_pushliteral(L, "bad multi bulk reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
         }
 
-        lua_pushlstring(L, dst, dst_len);
+        /* rc == PARSE_OK */
+
         lua_pushnumber(L, MULTI_BULK_REPLY);
         break;
 
@@ -196,12 +203,12 @@ parse_single_line_reply(const char *src, const char *last, size_t *dst_len)
     }
 
     /* CRLF not found at all */
-    *dst_len = -1;
+    *dst_len = -2;
     return NULL;
 }
 
 
-#define CHECK_EOF if (p == last) goto invalid;
+#define CHECK_EOF if (p >= last) goto invalid;
 
 
 static const char *
@@ -236,12 +243,12 @@ parse_bulk_reply(const char *src, const char *last, size_t *dst_len)
 
         p++;
 
-        if (*p != '\n') {
+        if (*p++ != '\n') {
             goto invalid;
         }
 
-        *dst_len = 0;
-        return NULL;
+        *dst_len = -1;
+        return p - (sizeof("\r\n") - 1);
     }
 
     while (*p != '\r') {
@@ -287,16 +294,81 @@ parse_bulk_reply(const char *src, const char *last, size_t *dst_len)
     return dst;
 
 invalid:
-    *dst_len = -1;
+    *dst_len = -2;
     return NULL;
 }
 
 
-static const char *
-parse_multi_bulk_reply(const char *src, const char *last,
-        size_t *dst_len)
+static int
+parse_multi_bulk_reply(lua_State *L, const char *src, const char *last)
 {
-    /* TODO */
-    return NULL;
+    const char      *p = src;
+    int              count = 0;
+    int              i;
+    size_t           dst_len;
+    const char      *dst;
+
+    dd("enter multi bulk parser");
+
+    CHECK_EOF
+
+    while (*p != '\r') {
+        if (*p < '0' || *p > '9') {
+            dd("expecting digit, but found %c", *p);
+            goto invalid;
+        }
+
+        count *= 10;
+        count += *p - '0';
+
+        p++;
+        CHECK_EOF
+    }
+
+    dd("count = %d", count);
+
+    /* *p == '\r' */
+
+    p++;
+    CHECK_EOF
+
+    if (*p++ != '\n') {
+        goto invalid;
+    }
+
+    dd("reading the individual bulks");
+
+    lua_createtable(L, count, 0);
+
+    for (i = 1; i <= count; i++) {
+        CHECK_EOF
+
+        if (*p++ != '$') {
+            goto invalid;
+        }
+
+        dst = parse_bulk_reply(p, last, &dst_len);
+
+        if (dst_len == -2) {
+            dd("bulk %d reply parse fail for multi bulks", i);
+            return PARSE_ERROR;
+        }
+
+        if (dst_len == -1) {
+            lua_pushnil(L);
+            p = dst + sizeof("\r\n") - 1;
+
+        } else {
+            lua_pushlstring(L, dst, dst_len);
+            p = dst + dst_len + sizeof("\r\n") - 1;
+        }
+
+        lua_rawseti(L, -2, i);
+    }
+
+    return PARSE_OK;
+
+invalid:
+    return PARSE_ERROR;
 }
 

@@ -21,6 +21,7 @@ OMIT_FRAME_POINTER = -fomit-frame-pointer
 ## uncomment and change the following ones according to your building
 ## enviroment.
 
+#CFLAGS=-I/usr/include/lua5.1/ -O0 -g -fPIC -Wall -Werror
 CFLAGS=-I/usr/include/lua5.1/ -O2 -fPIC -Wall -Werror
 LFLAGS=-shared $(OMIT_FRAME_POINTER)
 INSTALL_PATH=/usr/lib/lua/5.1

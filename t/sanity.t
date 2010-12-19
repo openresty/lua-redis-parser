@@ -39,7 +39,7 @@ run {
 
     run3 \@cmd, undef, \$res, \$err;
 
-    print "res:$res\nerr:$err\n";
+    #warn "res:$res\nerr:$err\n";
 
     if (defined $block->err) {
         $err =~ /.*:.*:.*: (.*\s)?/;
@@ -311,4 +311,94 @@ print("res", res)
 --- out eval
 "typ == 0 == 4
 res\tbad bulk reply\n"
+
+
+
+=== TEST 19: good multi bulk reply (1 bulk)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*1\r\n$1\r\na\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 5 == 5
+res == ["a"]\n}
+
+
+
+=== TEST 20: good multi bulk reply (4 bulks)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*4\r\n$1\r\na\r\n$-1\r\n$0\r\n\r\n$5\r\nhello\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 5 == 5
+res == ["a",null,"","hello"]\n}
+
+
+
+=== TEST 21: bad multi bulk reply (4 bulks)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*4\r\n$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 0 == 5
+res == "bad multi bulk reply"\n}
+
+
+
+=== TEST 22: bad multi bulk reply (4 bulks)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*6\r\n$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 0 == 5
+res == "bad multi bulk reply"\n}
+
+
+
+=== TEST 23: bad multi bulk reply (4 bulks)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*6\n$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 0 == 5
+res == "bad multi bulk reply"\n}
+
+
+
+=== TEST 24: bad multi bulk reply (4 bulks)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*6$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 0 == 5
+res == "bad multi bulk reply"\n}
 
