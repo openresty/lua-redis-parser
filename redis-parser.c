@@ -13,7 +13,7 @@ enum {
     ERROR_REPLY         = 2,
     INTEGER_REPLY       = 3,
     BULK_REPLY          = 4,
-    MULTI_BULK_REPLY    = 5,
+    MULTI_BULK_REPLY    = 5
 };
 
 
