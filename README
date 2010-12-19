@@ -6,17 +6,17 @@ that construct corresponding lua data strucutres.
     local parser = require('redis.parser')
     local res, typ = parser.parse_reply(reply)
     if typ == parser.BAD_REPLY then
-        ...
+        -- res is the textual error message from the parser
     elseif typ == parser.INTEGER_REPLY then
-        ...
+        -- res is an integer, like 3, returned from the redis server
     elseif typ == parser.ERROR_REPLY then
-        ...
+        -- res is the error message from the redis2 server
     elseif typ == parser.STATUS_REPLY then
-        ...
+        -- res is the textual message from the redis server
     elsif typ == parser.BULK_REPLY then
-        ...
+        --- res is a string for the bulk data
     elseif typ == parser.MULTI_BULK_REPLY then
-        ...
+        -- res is a lua (array) table that holds the individual bulks
     end
 
 This module is originally written for ngx_lua + ngx_redis2:
