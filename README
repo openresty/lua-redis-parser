@@ -25,3 +25,11 @@ This module is originally written for ngx_lua + ngx_redis2:
 
     https://github.com/agentzh/redis2-nginx-module
 
+Installation
+    # To use /usr/include/lua5.1/ and install to /usr/lib/lua/5.1:
+    make
+    make install
+
+    Please edit the Makefile file to use a custom lua and/or install
+    this module into a custom location.
+
