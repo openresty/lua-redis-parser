@@ -1,0 +1,27 @@
+lua-redis-parser
+
+This lua library implementes simple redis response parsers
+that construct corresponding lua data strucutres.
+
+    local parser = require('redis.parser')
+    local res, typ = parser.parse_reply(reply)
+    if typ == parser.BAD_REPLY then
+        ...
+    elseif typ == parser.INTEGER_REPLY then
+        ...
+    elseif typ == parser.ERROR_REPLY then
+        ...
+    elseif typ == parser.STATUS_REPLY then
+        ...
+    elsif typ == parser.BULK_REPLY then
+        ...
+    elseif typ == parser.MULTI_BULK_REPLY then
+        ...
+    end
+
+This module is originally written for ngx_lua + ngx_redis2:
+
+    http://github.com/chaoslawful/lua-nginx-module
+
+    https://github.com/agentzh/redis2-nginx-module
+
