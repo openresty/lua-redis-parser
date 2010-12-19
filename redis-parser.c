@@ -88,7 +88,7 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_single_line_reply(p, last, &dst_len);
 
-        if (dst == NULL) {
+        if (dst_len == -1) {
             lua_pushliteral(L, "bad status reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
@@ -102,7 +102,7 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_single_line_reply(p, last, &dst_len);
 
-        if (dst == NULL) {
+        if (dst_len == -1) {
             lua_pushliteral(L, "bad error reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
@@ -116,7 +116,7 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_single_line_reply(p, last, &dst_len);
 
-        if (dst == NULL) {
+        if (dst_len == -1) {
             lua_pushliteral(L, "bad integer reply");
             lua_pushnumber(L, BAD_REPLY);
             return 2;
@@ -132,9 +132,15 @@ redis_parse_reply(lua_State *L)
         p++;
         dst = parse_bulk_reply(p, last, &dst_len);
 
-        if (dst == NULL) {
+        if (dst_len == -1) {
             lua_pushliteral(L, "bad bulk reply");
             lua_pushnumber(L, BAD_REPLY);
+            return 2;
+        }
+
+        if (dst_len == 0) {
+            lua_pushnil(L);
+            lua_pushnumber(L, BULK_REPLY);
             return 2;
         }
 
@@ -190,15 +196,98 @@ parse_single_line_reply(const char *src, const char *last, size_t *dst_len)
     }
 
     /* CRLF not found at all */
-    *dst_len = 0;
+    *dst_len = -1;
     return NULL;
 }
+
+
+#define CHECK_EOF if (p == last) goto invalid;
 
 
 static const char *
 parse_bulk_reply(const char *src, const char *last, size_t *dst_len)
 {
-    /* TODO */
+    const char *p = src;
+    ssize_t     size = 0;
+    const char *dst;
+
+    CHECK_EOF
+
+    /* read the bulk size */
+
+    if (*p == '-') {
+        p++;
+        CHECK_EOF
+
+        while (*p != '\r') {
+            if (*p < '0' || *p > '9') {
+                goto invalid;
+            }
+
+            p++;
+            CHECK_EOF
+        }
+
+        /* *p == '\r' */
+
+        if (last - p < size + sizeof("\r\n") - 1) {
+            goto invalid;
+        }
+
+        p++;
+
+        if (*p != '\n') {
+            goto invalid;
+        }
+
+        *dst_len = 0;
+        return NULL;
+    }
+
+    while (*p != '\r') {
+        if (*p < '0' || *p > '9') {
+            goto invalid;
+        }
+
+        size *= 10;
+        size += *p - '0';
+
+        p++;
+        CHECK_EOF
+    }
+
+    /* *p == '\r' */
+
+    p++;
+    CHECK_EOF
+
+    if (*p++ != '\n') {
+        goto invalid;
+    }
+
+    /* read the bulk data */
+
+    if (last - p < size + sizeof("\r\n") - 1) {
+        goto invalid;
+    }
+
+    dst = p;
+
+    p += size;
+
+    if (*p++ != '\r') {
+        goto invalid;
+    }
+
+    if (*p++ != '\n') {
+        goto invalid;
+    }
+
+    *dst_len = size;
+    return dst;
+
+invalid:
+    *dst_len = -1;
     return NULL;
 }
 

@@ -144,3 +144,171 @@ typ == 0 == 0
 res == bad integer reply
 res type == string
 
+
+
+=== TEST 7: good bulk reply
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$5\r\nhello\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res == " .. res)
+--- out
+typ == 4 == 4
+res == hello
+
+
+
+=== TEST 8: good bulk reply (ignoring trailing stuffs)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$5\r\nhello\r\nblah'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res == " .. res)
+--- out
+typ == 4 == 4
+res == hello
+
+
+
+=== TEST 9: bad bulk reply (bad bulk size)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$3b\r\nhello\r\nblah'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res == " .. res)
+--- out
+typ == 0 == 4
+res == bad bulk reply
+
+
+
+=== TEST 10: bad bulk reply (bulk size too small)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$3\r\nhello\r\nblah'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res == " .. res)
+--- out
+typ == 0 == 4
+res == bad bulk reply
+
+
+
+=== TEST 11: bad bulk reply (bulk size too large)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$6\r\nhello\r\nblah'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res == " .. res)
+--- out
+typ == 0 == 4
+res == bad bulk reply
+
+
+
+=== TEST 12: bad bulk reply (bulk size too large, 2)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$7\r\nhello\r\nblah'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res == " .. res)
+--- out
+typ == 0 == 4
+res == bad bulk reply
+
+
+
+=== TEST 13: bad bulk reply (bulk size too large, 3)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$8\r\nhello\r\nblah'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res == " .. res)
+--- out
+typ == 0 == 4
+res == bad bulk reply
+
+
+
+=== TEST 14: good bulk reply (nil value)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$-1\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res", res)
+--- out eval
+"typ == 4 == 4
+res\tnil\n"
+
+
+
+=== TEST 15: good bulk reply (nil value, -25 size)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$-25\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res", res)
+--- out eval
+"typ == 4 == 4
+res\tnil\n"
+
+
+
+=== TEST 16: bad bulk reply (nil value, -1 size)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$-1\r'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res", res)
+--- out eval
+"typ == 0 == 4
+res\tbad bulk reply\n"
+
+
+
+=== TEST 17: bad bulk reply (nil value, -1 size)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$-1\ra'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res", res)
+--- out eval
+"typ == 0 == 4
+res\tbad bulk reply\n"
+
+
+
+=== TEST 18: bad bulk reply (nil value, -1 size)
+--- sql
+--- lua
+parser = require("redis.parser")
+reply = '$-1ab'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("res", res)
+--- out eval
+"typ == 0 == 4
+res\tbad bulk reply\n"
+
