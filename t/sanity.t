@@ -3,11 +3,13 @@
 use strict;
 use warnings;
 
-use Test::Base 'no_plan';
+use Test::Base;
 use IPC::Run3;
 use Cwd;
 
 use Test::LongString;
+
+plan tests => 1 * blocks();
 
 $ENV{LUA_CPATH} = ($ENV{LUA_CPATH} || "") . ';' . "/home/lz/luax/?.so;;";
 #$ENV{LUA_PATH} = ($ENV{LUA_PATH} || "" ) . ';' . getcwd . "/runtime/?.lua" . ';;';
