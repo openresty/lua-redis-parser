@@ -402,3 +402,42 @@ print("res == " .. yajl.to_string(res))
 qq{typ == 0 == 5
 res == "bad multi bulk reply"\n}
 
+
+
+=== TEST 25: build query (empty param table)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+q = {}
+local query = parser.build_query(q)
+print("query == " .. yajl.to_string(query))
+--- err
+empty input param table
+
+
+
+=== TEST 26: build query (single param)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+q = {'ping'}
+local query = parser.build_query(q)
+print("query == " .. yajl.to_string(query))
+--- out
+query == "*1\r\n$4\r\nping\r\n"
+
+
+
+=== TEST 27: build query (single param)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+q = {'get', 'one', '\r\n'}
+local query = parser.build_query(q)
+print("query == " .. yajl.to_string(query))
+--- out
+query == "*3\r\n$3\r\nget\r\n$3\r\none\r\n$2\r\n\r\n\r\n"
+

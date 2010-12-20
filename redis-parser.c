@@ -22,17 +22,24 @@ enum {
 };
 
 
+#define UINT64_LEN   (sizeof("18446744073709551615") - 1)
+
+
 static int redis_parse_reply(lua_State *L);
+static int redis_build_query(lua_State *L);
 static const char * parse_single_line_reply(const char *src, const char *last,
         size_t *dst_len);
 static const char * parse_bulk_reply(const char *src, const char *last,
         size_t *dst_len);
 static int parse_multi_bulk_reply(lua_State *L, const char *src,
         const char *last);
+static size_t get_num_size(size_t i);
+static char *sprintf_num(char *dst, int64_t ui64);
 
 
 static const struct luaL_Reg redis_parser[] = {
     {"parse_reply", redis_parse_reply},
+    {"build_query", redis_build_query},
     {NULL, NULL}
 };
 
@@ -370,5 +377,120 @@ parse_multi_bulk_reply(lua_State *L, const char *src, const char *last)
 
 invalid:
     return PARSE_ERROR;
+}
+
+
+static int
+redis_build_query(lua_State *L)
+{
+    int          i, n;
+    size_t       len, total;
+    const char  *p;
+    char        *last;
+    char        *buf;
+
+    if (lua_gettop(L) != 1) {
+        return luaL_error(L, "expected one argument but got %d",
+                lua_gettop(L));
+    }
+
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    n = luaL_getn(L, 1);
+
+    if (n == 0) {
+        return luaL_error(L, "empty input param table");
+    }
+
+    total = sizeof("*") - 1
+          + get_num_size(n)
+          + sizeof("\r\n") - 1
+          ;
+
+    for (i = 1; i <= n; i++) {
+        lua_rawgeti(L, 1, i);
+        p = luaL_checklstring(L, -1, &len);
+
+        total += sizeof("$") - 1
+               + get_num_size(len)
+               + sizeof("\r\n") - 1
+               + len
+               + sizeof("\r\n") - 1
+               ;
+    }
+
+    buf = malloc(total);
+    if (buf == NULL) {
+        return luaL_error(L, "out of memory");
+    }
+
+    last = buf;
+
+    lua_pushlstring(L, buf, total);
+
+    *last++ = '*';
+    last = sprintf_num(last, n);
+    *last++ = '\r'; *last++ = '\n';
+
+    for (i = 1; i <= n; i++) {
+        lua_rawgeti(L, 1, i);
+        p = luaL_checklstring(L, -1, &len);
+
+        *last++ = '$';
+
+        last = sprintf_num(last, len);
+
+        *last++ = '\r'; *last++ = '\n';
+
+        memcpy(last, p, len);
+        last += len;
+
+        *last++ = '\r'; *last++ = '\n';
+    }
+
+    if (last - buf != (ssize_t) total) {
+        return luaL_error(L, "buffer error");
+    }
+
+    lua_pushlstring(L, buf, total);
+
+    free(buf);
+
+    return 1;
+}
+
+
+static size_t
+get_num_size(size_t i)
+{
+    size_t          n = 0;
+
+    do {
+        i = i / 10;
+        n++;
+    } while (i > 0);
+
+    return n;
+}
+
+
+static char *
+sprintf_num(char *dst, int64_t ui64)
+{
+    char             *p;
+    char              temp[UINT64_LEN + 1];
+    size_t            len;
+
+    p = temp + UINT64_LEN;
+
+    do {
+        *--p = (char) (ui64 % 10 + '0');
+    } while (ui64 /= 10);
+
+    len = (temp + UINT64_LEN) - p;
+
+    memcpy(dst, p, len);
+
+    return dst + len;
 }
 
