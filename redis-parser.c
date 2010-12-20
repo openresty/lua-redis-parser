@@ -24,6 +24,7 @@ enum {
 
 #define UINT64_LEN   (sizeof("18446744073709551615") - 1)
 
+static char *redis_null = "null";
 
 static int redis_parse_reply(lua_State *L);
 static int redis_build_query(lua_State *L);
@@ -48,6 +49,9 @@ int
 luaopen_redis_parser(lua_State *L)
 {
     luaL_register(L, "redis.parser", redis_parser);
+
+    lua_pushlightuserdata(L, redis_null);
+    lua_setfield(L, -2, "null");
 
     lua_pushnumber(L, BAD_REPLY);
     lua_setfield(L, -2, "BAD_REPLY");
@@ -388,6 +392,7 @@ redis_build_query(lua_State *L)
     const char  *p;
     char        *last;
     char        *buf;
+    int          flag;
 
     if (lua_gettop(L) != 1) {
         return luaL_error(L, "expected one argument but got %d",
@@ -409,14 +414,39 @@ redis_build_query(lua_State *L)
 
     for (i = 1; i <= n; i++) {
         lua_rawgeti(L, 1, i);
-        p = luaL_checklstring(L, -1, &len);
 
-        total += sizeof("$") - 1
-               + get_num_size(len)
-               + sizeof("\r\n") - 1
-               + len
-               + sizeof("\r\n") - 1
-               ;
+        dd("param type: %d (%d)", lua_type(L, -1), LUA_TUSERDATA);
+
+        switch (lua_type(L, -1)) {
+            case LUA_TSTRING:
+            case LUA_TNUMBER:
+                lua_tolstring(L, -1, &len);
+
+                total += sizeof("$") - 1
+                       + get_num_size(len)
+                       + sizeof("\r\n") - 1
+                       + len
+                       + sizeof("\r\n") - 1
+                       ;
+
+                break;
+
+            case LUA_TBOOLEAN:
+                total += sizeof("$1\r\n1\r\n") - 1;
+                break;
+
+            case LUA_TLIGHTUSERDATA:
+                p = lua_touserdata(L, -1);
+                dd("user data: %p", p);
+                if (p == redis_null) {
+                    total += sizeof("$-1\r\n") - 1;
+                    break;
+                }
+
+            default:
+                return luaL_error(L, "parameter %d is not a string, number, "
+                        "redis.parser.null, or boolean value", i);
+        }
     }
 
     buf = malloc(total);
@@ -434,18 +464,46 @@ redis_build_query(lua_State *L)
 
     for (i = 1; i <= n; i++) {
         lua_rawgeti(L, 1, i);
-        p = luaL_checklstring(L, -1, &len);
 
-        *last++ = '$';
+        switch (lua_type(L, -1)) {
+            case LUA_TSTRING:
+            case LUA_TNUMBER:
+                p = luaL_checklstring(L, -1, &len);
 
-        last = sprintf_num(last, len);
+                *last++ = '$';
 
-        *last++ = '\r'; *last++ = '\n';
+                last = sprintf_num(last, len);
 
-        memcpy(last, p, len);
-        last += len;
+                *last++ = '\r'; *last++ = '\n';
 
-        *last++ = '\r'; *last++ = '\n';
+                memcpy(last, p, len);
+                last += len;
+
+                *last++ = '\r'; *last++ = '\n';
+
+                break;
+
+            case LUA_TBOOLEAN:
+                memcpy(last, "$1\r\n", sizeof("$1\r\n") - 1);
+                last += sizeof("$1\r\n") - 1;
+
+                flag = lua_toboolean(L, -1);
+                *last++ = flag ? '1' : '0';
+
+                *last++ = '\r'; *last++ = '\n';
+
+                break;
+
+            case LUA_TLIGHTUSERDATA:
+                /* must be null */
+                memcpy(last, "$-1\r\n", sizeof("$-1\r\n") - 1);
+                last += sizeof("$-1\r\n") - 1;
+                break;
+
+            default:
+                /* cannot reach here */
+                break;
+        }
     }
 
     if (last - buf != (ssize_t) total) {

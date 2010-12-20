@@ -441,3 +441,55 @@ print("query == " .. yajl.to_string(query))
 --- out
 query == "*3\r\n$3\r\nget\r\n$3\r\none\r\n$2\r\n\r\n\r\n"
 
+
+
+=== TEST 28: build query (empty param "")
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+q = {''}
+local query = parser.build_query(q)
+print("query == " .. yajl.to_string(query))
+--- out
+query == "*1\r\n$0\r\n\r\n"
+
+
+
+=== TEST 29: build query (empty param "")
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+q = {''}
+local query = parser.build_query(q)
+print("query == " .. yajl.to_string(query))
+--- out
+query == "*1\r\n$0\r\n\r\n"
+
+
+
+=== TEST 30: build query (nil param)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+q = {parser.null}
+local query = parser.build_query(q)
+print("query == " .. yajl.to_string(query))
+--- out
+query == "*1\r\n$-1\r\n"
+
+
+
+=== TEST 31: build query (numeric param)
+--- sql
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+q = {'set', 'foo', 3.1415926}
+local query = parser.build_query(q)
+print("query == " .. yajl.to_string(query))
+--- out
+query == "*3\r\n$3\r\nset\r\n$3\r\nfoo\r\n$9\r\n3.1415926\r\n"
+
