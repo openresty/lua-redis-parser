@@ -23,6 +23,11 @@ that construct corresponding lua data strucutres.
         -- req is the raw TCP request ready to send to the remote redis server
         -- over the TCP connection
 
+null values should be specified by "parser.null" (without quotes) rather
+than Lua's "nil".
+
+Boolean values will be converted to 1 or 0, for true and false, respectively.
+
 This module is originally written for ngx_lua + ngx_redis2:
 
     http://github.com/chaoslawful/lua-nginx-module
