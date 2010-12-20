@@ -19,6 +19,10 @@ that construct corresponding lua data strucutres.
         -- res is a lua (array) table that holds the individual bulks
     end
 
+    local req = parser.build_query({'set', 'foo', 'some value'})
+        -- req is the raw TCP request ready to send to the remote redis server
+        -- over the TCP connection
+
 This module is originally written for ngx_lua + ngx_redis2:
 
     http://github.com/chaoslawful/lua-nginx-module
