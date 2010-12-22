@@ -1,7 +1,10 @@
 lua-redis-parser
 
-This lua library implementes simple redis response parsers
-that construct corresponding lua data strucutres.
+This lua library implementes a thin and fast redis raw response parser
+that constructs corresponding lua data strucutres, as well as a
+function that constructs redis raw requests.
+
+To maximize speed, this module is implemented in pure C.
 
     local parser = require('redis.parser')
     local res, typ = parser.parse_reply(reply)
