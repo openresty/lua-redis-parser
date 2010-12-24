@@ -22,6 +22,22 @@ To maximize speed, this module is implemented in pure C.
         -- res is a lua (array) table that holds the individual bulks
     end
 
+We also have a build_query function that helps construct raw redis requests from
+simple lua values. It simply accepts a lua table, a list of parameters including
+the command name.
+
+Let's check out the complete list of redis 2.0 commands:
+
+   http://redis.io/commands
+
+For the first command in that list, "APPEND   key value", we can just use
+
+local req = parser.build_query({'APPEND', 'some-key', 'some-value'})
+
+to construct a binary request in the return value. Because the redis
+command is case insensitive, I usually just use 'append', the lower
+case form, as the first element of that list, as in
+
     local req = parser.build_query({'set', 'foo', 'some value'})
         -- req is the raw TCP request ready to send to the remote redis server
         -- over the TCP connection
@@ -30,6 +46,8 @@ null values should be specified by "parser.null" (without quotes) rather
 than Lua's "nil".
 
 Boolean values will be converted to 1 or 0, for true and false, respectively.
+
+Background
 
 This module is originally written for ngx_lua + ngx_redis2:
 
