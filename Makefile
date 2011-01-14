@@ -40,8 +40,8 @@ parser.so: parser.lo
 	$(CC) -o parser.so $(LFLAGS) $(LIBS) $<
 
 install: parser.so
-	if [ ! -d "$(DESTDIR)$(INSTALL_PATH)/lz" ]; then mkdir -p "$(DESTDIR)$(INSTALL_PATH)/lz"; fi
-	$(INSTALL) parser.so $(DESTDIR)$(INSTALL_PATH)/lz/parser.so
+	if [ ! -d "$(DESTDIR)$(INSTALL_PATH)/redis" ]; then mkdir -p "$(DESTDIR)$(INSTALL_PATH)/redis"; fi
+	$(INSTALL) parser.so $(DESTDIR)$(INSTALL_PATH)/redis/parser.so
 
 clean:
 	$(RM) *.so *.lo lz/*.so
