@@ -1,4 +1,4 @@
-version=0.02
+version=0.03
 name=lua-redis-parser
 dist=$(name)-$(version)
 
