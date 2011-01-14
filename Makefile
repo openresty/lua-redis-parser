@@ -1,4 +1,4 @@
-version=0.01
+version=0.02
 name=lua-redis-parser
 dist=$(name)-$(version)
 
@@ -28,6 +28,8 @@ CFLAGS=-I$(LUA_INC) -O2 -fPIC -Wall -Werror
 LFLAGS=-shared $(OMIT_FRAME_POINTER)
 INSTALL_PATH=/usr/lib/lua/5.1
 CC=gcc
+#INSTALL=install -D -s
+INSTALL=cp -p
 
 all: parser.so
 
@@ -38,7 +40,8 @@ parser.so: parser.lo
 	$(CC) -o parser.so $(LFLAGS) $(LIBS) $<
 
 install: parser.so
-	install -D -s parser.so $(DESTDIR)$(INSTALL_PATH)/lz/parser.so
+	if [ ! -d "$(DESTDIR)$(INSTALL_PATH)/lz" ]; then mkdir -p "$(DESTDIR)$(INSTALL_PATH)/lz"; fi
+	$(INSTALL) parser.so $(DESTDIR)$(INSTALL_PATH)/lz/parser.so
 
 clean:
 	$(RM) *.so *.lo lz/*.so
