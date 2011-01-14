@@ -22,7 +22,9 @@ OMIT_FRAME_POINTER = -fomit-frame-pointer
 ## enviroment.
 
 #CFLAGS=-I/usr/include/lua5.1/ -O0 -g -fPIC -Wall -Werror
-CFLAGS=-I/usr/include/lua5.1/ -O2 -fPIC -Wall -Werror
+
+LUA_INC=/usr/include/lua5.1
+CFLAGS=-I$(LUA_INC) -O2 -fPIC -Wall -Werror
 LFLAGS=-shared $(OMIT_FRAME_POINTER)
 INSTALL_PATH=/usr/lib/lua/5.1
 CC=gcc
