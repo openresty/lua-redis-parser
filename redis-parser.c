@@ -1,4 +1,4 @@
-#define DDEBUG 0
+#define DDEBUG 1
 #include "ddebug.h"
 
 #include <lua.h>
@@ -27,13 +27,15 @@ enum {
 
 static char *redis_null = "null";
 
+static int parse_reply_helper(lua_State *L, char **src, size_t len);
 static int redis_parse_reply(lua_State *L);
+static int redis_parse_replies(lua_State *L);
 static int redis_build_query(lua_State *L);
 static const char * parse_single_line_reply(const char *src, const char *last,
         size_t *dst_len);
 static const char * parse_bulk_reply(const char *src, const char *last,
         size_t *dst_len);
-static int parse_multi_bulk_reply(lua_State *L, const char *src,
+static int parse_multi_bulk_reply(lua_State *L, char **src,
         const char *last);
 static size_t get_num_size(size_t i);
 static char *sprintf_num(char *dst, int64_t ui64);
@@ -41,6 +43,7 @@ static char *sprintf_num(char *dst, int64_t ui64);
 
 static const struct luaL_Reg redis_parser[] = {
     {"parse_reply", redis_parse_reply},
+    {"parse_replies", redis_parse_replies},
     {"build_query", redis_build_query},
     {NULL, NULL}
 };
@@ -79,19 +82,79 @@ luaopen_redis_parser(lua_State *L)
 static int
 redis_parse_reply(lua_State *L)
 {
-    const char      *p, *last;
+    char            *p;
     size_t           len;
-    const char      *dst;
-    size_t           dst_len;
-    lua_Number       num;
-    int              rc;
 
     if (lua_gettop(L) != 1) {
         return luaL_error(L, "expected one argument but got %d",
                 lua_gettop(L));
     }
 
-    p = luaL_checklstring(L, 1, &len);
+    p = (char *) luaL_checklstring(L, 1, &len);
+
+    return parse_reply_helper(L, &p, len);
+}
+
+
+static int
+redis_parse_replies(lua_State *L)
+{
+    char        *p;
+    char        *q;
+    int          i, n, nret;
+    size_t       len;
+
+    if (lua_gettop(L) != 2) {
+        return luaL_error(L, "expected two arguments but got %d",
+                lua_gettop(L));
+    }
+
+    p = (char *) luaL_checklstring(L, 1, &len);
+
+    n = luaL_checknumber(L, 2);
+    dd("n = %d", n);
+
+    lua_pop(L, 1);
+
+    lua_createtable(L, n, 0); /* table */
+
+    for (i = 1; i <= n; i++) {
+        dd("parsing reply %d", i);
+
+        lua_createtable(L, n, 2); /* table table */
+        q = p;
+        nret = parse_reply_helper(L, &p, len); /* table table res typ */
+        if (nret != 2) {
+            return luaL_error(L, "internal error: redis_parse_reply "
+                    "returns %d", nret);
+        }
+
+        dd("p = %p, q = %p, len = %d", p, q, (int) len);
+
+        len -= p - q;
+
+        dd("len is now %d", (int) len);
+
+        lua_rawseti(L, -3, 2); /* table table res */
+        lua_rawseti(L, -2, 1); /* table table */
+        lua_rawseti(L, -2, i); /* table */
+    }
+
+    return 1;
+}
+
+
+static int
+parse_reply_helper(lua_State *L, char **src, size_t len)
+{
+    char            *p;
+    const char      *last;
+    const char      *dst;
+    size_t           dst_len;
+    lua_Number       num;
+    int              rc;
+
+    p = *src;
 
     if (len == 0) {
         lua_pushliteral(L, "empty reply");
@@ -112,6 +175,8 @@ redis_parse_reply(lua_State *L)
             return 2;
         }
 
+        *src += dst_len + 1 + sizeof("\r\n") - 1;
+
         lua_pushlstring(L, dst, dst_len);
         lua_pushnumber(L, STATUS_REPLY);
         break;
@@ -125,6 +190,8 @@ redis_parse_reply(lua_State *L)
             lua_pushnumber(L, BAD_REPLY);
             return 2;
         }
+
+        *src += dst_len + 1 + sizeof("\r\n") - 1;
 
         lua_pushlstring(L, dst, dst_len);
         lua_pushnumber(L, ERROR_REPLY);
@@ -140,8 +207,12 @@ redis_parse_reply(lua_State *L)
             return 2;
         }
 
+        *src += dst_len + 1 + sizeof("\r\n") - 1;
+
         lua_pushlstring(L, dst, dst_len);
         num = lua_tonumber(L, -1);
+        lua_pop(L, 1);
+
         lua_pushnumber(L, num);
         lua_pushnumber(L, INTEGER_REPLY);
         break;
@@ -157,10 +228,14 @@ redis_parse_reply(lua_State *L)
         }
 
         if (dst_len == -1) {
+            *src = (char *) dst + sizeof("\r\n") - 1;
+
             lua_pushnil(L);
             lua_pushnumber(L, BULK_REPLY);
             return 2;
         }
+
+        *src = (char *) dst + dst_len + sizeof("\r\n") - 1;
 
         lua_pushlstring(L, dst, dst_len);
         lua_pushnumber(L, BULK_REPLY);
@@ -168,7 +243,7 @@ redis_parse_reply(lua_State *L)
 
     case '*':
         p++;
-        rc = parse_multi_bulk_reply(L, p, last);
+        rc = parse_multi_bulk_reply(L, &p, last);
 
         if (rc != PARSE_OK) {
             lua_pushliteral(L, "bad multi bulk reply");
@@ -178,11 +253,13 @@ redis_parse_reply(lua_State *L)
 
         /* rc == PARSE_OK */
 
+        *src = (char *) p;
+
         lua_pushnumber(L, MULTI_BULK_REPLY);
         break;
 
     default:
-        lua_pushliteral(L, "empty reply");
+        lua_pushliteral(L, "invalid reply");
         lua_pushnumber(L, BAD_REPLY);
         break;
     }
@@ -312,9 +389,9 @@ invalid:
 
 
 static int
-parse_multi_bulk_reply(lua_State *L, const char *src, const char *last)
+parse_multi_bulk_reply(lua_State *L, char **src, const char *last)
 {
-    const char      *p = src;
+    const char      *p = *src;
     int              count = 0;
     int              i;
     size_t           dst_len;
@@ -377,6 +454,8 @@ parse_multi_bulk_reply(lua_State *L, const char *src, const char *last)
 
         lua_rawseti(L, -2, i);
     }
+
+    *src = (char *) p;
 
     return PARSE_OK;
 

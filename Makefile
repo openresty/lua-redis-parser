@@ -32,6 +32,8 @@ CC=gcc
 INSTALL=cp -p
 
 all: parser.so
+	if [ ! -d redis ]; then mkdir redis; fi
+	cp parser.so redis/
 
 parser.lo: redis-parser.c ddebug.h
 	$(CC) $(CFLAGS) -o parser.lo -c $<
@@ -47,8 +49,6 @@ clean:
 	$(RM) *.so *.lo lz/*.so
 
 test: parser.so
-	if [ ! -d redis ]; then mkdir redis; fi
-	cp parser.so redis/
 	prove -r t
 
 valtest: parser.so
