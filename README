@@ -6,8 +6,14 @@ function that constructs redis raw requests.
 
 To maximize speed, this module is implemented in pure C.
 
+Here's the usage of the parse_reply method:
+
     local parser = require('redis.parser')
+
+    -- assuming the reply variable holds the (single) redis response
+    --  to be parsed:
     local res, typ = parser.parse_reply(reply)
+
     if typ == parser.BAD_REPLY then
         -- res is the textual error message from the parser
     elseif typ == parser.INTEGER_REPLY then
@@ -20,6 +26,22 @@ To maximize speed, this module is implemented in pure C.
         --- res is a string for the bulk data
     elseif typ == parser.MULTI_BULK_REPLY then
         -- res is a lua (array) table that holds the individual bulks
+    end
+
+You can use the parse_replies method to parse multiple pipelined
+redis responses, for example
+
+    local parser = require('redis.parser')
+
+    -- assuming the replies variable holds n redis responses
+    --  to be parsed:
+    local results = parser.parse_replies(replies, n)
+    for i, result in ipairs(results) do
+        local res = result[1]
+        local typ = result[2]
+
+        -- res and typ have exactly the same meaning as in
+        --  the parse_reply method documented above
     end
 
 We also have a build_query function that helps construct raw redis requests from
