@@ -22,7 +22,7 @@ Here's the usage of the parse_reply method:
         -- res is the error message from the redis2 server
     elseif typ == parser.STATUS_REPLY then
         -- res is the textual message from the redis server
-    elsif typ == parser.BULK_REPLY then
+    elseif typ == parser.BULK_REPLY then
         --- res is a string for the bulk data
     elseif typ == parser.MULTI_BULK_REPLY then
         -- res is a lua (array) table that holds the individual bulks
