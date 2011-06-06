@@ -25,7 +25,7 @@ OMIT_FRAME_POINTER = -fomit-frame-pointer
 
 LUA_INC=/usr/include/lua5.1
 CFLAGS=-I$(LUA_INC) -O2 -fPIC -Wall -Werror
-LFLAGS=-shared $(OMIT_FRAME_POINTER) -llua
+LFLAGS=-shared $(OMIT_FRAME_POINTER)
 INSTALL_PATH=/usr/lib/lua/5.1
 CC=gcc
 #INSTALL=install -D -s
