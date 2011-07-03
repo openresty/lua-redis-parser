@@ -416,3 +416,31 @@ print("query == " .. yajl.to_string(query))
 --- out
 query == "*3\r\n$3\r\nset\r\n$3\r\nfoo\r\n$9\r\n3.1415926\r\n"
 
+
+
+=== TEST 32: multi bulk reply contains single line reply
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*5\r\n$1\r\na\r\n:1\r\n-Bad argument\r\n+32\r\n$3\r\nfoo\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 5 == 5
+res == ["a","1","Bad argument","32","foo"]\n}
+
+
+
+=== TEST 33: we allow left-over bytes
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = '*3\r\n$1\r\na\r\n:1\r\n-Bad argument\r\n+32\r\n$3\r\nfoo\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. yajl.to_string(res))
+--- out eval
+qq{typ == 5 == 5
+res == ["a","1","Bad argument"]\n}
+

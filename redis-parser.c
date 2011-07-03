@@ -432,24 +432,35 @@ parse_multi_bulk_reply(lua_State *L, char **src, const char *last)
     for (i = 1; i <= count; i++) {
         CHECK_EOF
 
-        if (*p++ != '$') {
+        switch (*p) {
+        case '+':
+        case '-':
+        case ':':
+            p++;
+            dst = parse_single_line_reply(p, last, &dst_len);
+            break;
+
+        case '$':
+            p++;
+            dst = parse_bulk_reply(p, last, &dst_len);
+            if (dst_len == -2) {
+                dd("bulk %d reply parse fail for multi bulks", i);
+                return PARSE_ERROR;
+            }
+
+            if (dst_len == -1) {
+                lua_pushnil(L);
+                p = dst + sizeof("\r\n") - 1;
+
+            } else {
+                lua_pushlstring(L, dst, dst_len);
+                p = dst + dst_len + sizeof("\r\n") - 1;
+            }
+
+            break;
+
+        default:
             goto invalid;
-        }
-
-        dst = parse_bulk_reply(p, last, &dst_len);
-
-        if (dst_len == -2) {
-            dd("bulk %d reply parse fail for multi bulks", i);
-            return PARSE_ERROR;
-        }
-
-        if (dst_len == -1) {
-            lua_pushnil(L);
-            p = dst + sizeof("\r\n") - 1;
-
-        } else {
-            lua_pushlstring(L, dst, dst_len);
-            p = dst + dst_len + sizeof("\r\n") - 1;
         }
 
         lua_rawseti(L, -2, i);
