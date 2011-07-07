@@ -252,12 +252,12 @@ res\tbad bulk reply\n"
 
 === TEST 19: good multi bulk reply (1 bulk)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*1\r\n$1\r\na\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 5 == 5
 res == ["a"]\n}
@@ -266,12 +266,12 @@ res == ["a"]\n}
 
 === TEST 20: good multi bulk reply (4 bulks)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*4\r\n$1\r\na\r\n$-1\r\n$0\r\n\r\n$5\r\nhello\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 5 == 5
 res == ["a",null,"","hello"]\n}
@@ -280,12 +280,12 @@ res == ["a",null,"","hello"]\n}
 
 === TEST 21: bad multi bulk reply (4 bulks)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*4\r\n$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 0 == 5
 res == "bad multi bulk reply"\n}
@@ -294,12 +294,12 @@ res == "bad multi bulk reply"\n}
 
 === TEST 22: bad multi bulk reply (4 bulks)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*6\r\n$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 0 == 5
 res == "bad multi bulk reply"\n}
@@ -308,12 +308,12 @@ res == "bad multi bulk reply"\n}
 
 === TEST 23: bad multi bulk reply (4 bulks)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*6\n$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 0 == 5
 res == "bad multi bulk reply"\n}
@@ -322,12 +322,12 @@ res == "bad multi bulk reply"\n}
 
 === TEST 24: bad multi bulk reply (4 bulks)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*6$1\r\na\r\n$-1\r\n$0\r\n\n$5\r\nhello\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 0 == 5
 res == "bad multi bulk reply"\n}
@@ -336,11 +336,11 @@ res == "bad multi bulk reply"\n}
 
 === TEST 25: build query (empty param table)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 q = {}
 local query = parser.build_query(q)
-print("query == " .. yajl.to_string(query))
+print("query == " .. cjson.encode(query))
 --- err
 empty input param table
 
@@ -348,11 +348,11 @@ empty input param table
 
 === TEST 26: build query (single param)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 q = {'ping'}
 local query = parser.build_query(q)
-print("query == " .. yajl.to_string(query))
+print("query == " .. cjson.encode(query))
 --- out
 query == "*1\r\n$4\r\nping\r\n"
 
@@ -360,11 +360,11 @@ query == "*1\r\n$4\r\nping\r\n"
 
 === TEST 27: build query (single param)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 q = {'get', 'one', '\r\n'}
 local query = parser.build_query(q)
-print("query == " .. yajl.to_string(query))
+print("query == " .. cjson.encode(query))
 --- out
 query == "*3\r\n$3\r\nget\r\n$3\r\none\r\n$2\r\n\r\n\r\n"
 
@@ -372,11 +372,11 @@ query == "*3\r\n$3\r\nget\r\n$3\r\none\r\n$2\r\n\r\n\r\n"
 
 === TEST 28: build query (empty param "")
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 q = {''}
 local query = parser.build_query(q)
-print("query == " .. yajl.to_string(query))
+print("query == " .. cjson.encode(query))
 --- out
 query == "*1\r\n$0\r\n\r\n"
 
@@ -384,11 +384,11 @@ query == "*1\r\n$0\r\n\r\n"
 
 === TEST 29: build query (empty param "")
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 q = {''}
 local query = parser.build_query(q)
-print("query == " .. yajl.to_string(query))
+print("query == " .. cjson.encode(query))
 --- out
 query == "*1\r\n$0\r\n\r\n"
 
@@ -396,11 +396,11 @@ query == "*1\r\n$0\r\n\r\n"
 
 === TEST 30: build query (nil param)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 q = {parser.null}
 local query = parser.build_query(q)
-print("query == " .. yajl.to_string(query))
+print("query == " .. cjson.encode(query))
 --- out
 query == "*1\r\n$-1\r\n"
 
@@ -408,11 +408,11 @@ query == "*1\r\n$-1\r\n"
 
 === TEST 31: build query (numeric param)
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 q = {'set', 'foo', 3.1415926}
 local query = parser.build_query(q)
-print("query == " .. yajl.to_string(query))
+print("query == " .. cjson.encode(query))
 --- out
 query == "*3\r\n$3\r\nset\r\n$3\r\nfoo\r\n$9\r\n3.1415926\r\n"
 
@@ -420,12 +420,12 @@ query == "*3\r\n$3\r\nset\r\n$3\r\nfoo\r\n$9\r\n3.1415926\r\n"
 
 === TEST 32: multi bulk reply contains single line reply
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*5\r\n$1\r\na\r\n:1\r\n-Bad argument\r\n+32\r\n$3\r\nfoo\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 5 == 5
 res == ["a","1","Bad argument","32","foo"]\n}
@@ -434,12 +434,12 @@ res == ["a","1","Bad argument","32","foo"]\n}
 
 === TEST 33: we allow left-over bytes
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*3\r\n$1\r\na\r\n:1\r\n-Bad argument\r\n+32\r\n$3\r\nfoo\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
-print("res == " .. yajl.to_string(res))
+print("res == " .. cjson.encode(res))
 --- out eval
 qq{typ == 5 == 5
 res == ["a","1","Bad argument"]\n}
@@ -448,11 +448,11 @@ res == ["a","1","Bad argument"]\n}
 
 === TEST 34: bug reported by James Hurst
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 reply = "*3\r\n$9\r\nsubscribe\r\n$38\r\nledge:d1d0ed5f3251473795548ab392181d06\r\n:1\r\n*3\r\n$7\r\nmessage\r\n$38\r\nledge:d1d0ed5f3251473795548ab392181d06\r\n$8\r\nfinished\r\n"
 resp = parser.parse_replies(reply, 2)
-print("res == " .. yajl.to_string(resp))
+print("res == " .. cjson.encode(resp))
 --- out
 res == [[["subscribe","ledge:d1d0ed5f3251473795548ab392181d06","1"],5],[["message","ledge:d1d0ed5f3251473795548ab392181d06","finished"],5]]
 

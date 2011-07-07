@@ -49,12 +49,12 @@ clean:
 	$(RM) *.so *.lo lz/*.so
 
 test: parser.so
-	prove -r t
+	LUA_CPATH="$$HOME/work/lua-cjson-1.0.2/?.so;;" prove -r t
 
 valtest: parser.so
 	if [ ! -d lz ]; then mkdir lz; fi
 	cp parser.so lz/
-	TEST_LUA_USE_VALGRIND=1 prove -r t
+	LUA_CPATH="$$HOME/work/lua-cjson-1.0.2/?.so;;" TEST_LUA_USE_VALGRIND=1 prove -r t
 
 dist:
 	if [ -d $(dist) ]; then rm -r $(dist); fi

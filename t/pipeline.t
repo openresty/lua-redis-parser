@@ -228,7 +228,7 @@ res[2][2] == 4 == 4
 
 === TEST 9: multiple multi-bulk replies
 --- lua
-yajl = require('yajl')
+cjson = require('cjson')
 parser = require("redis.parser")
 replies = '*2\r\n$-1\r\n$5\r\nhello\r\n*1\r\n$1\r\na\r\n$2\r\nef\r\n'
 results = parser.parse_replies(replies, 2)
@@ -238,12 +238,12 @@ print("res[2] count == " .. #results[2])
 
 local res = results[1]
 
-print("res[1][1] == " .. yajl.to_string(res[1]))
+print("res[1][1] == " .. cjson.encode(res[1]))
 print("res[1][2] == " .. res[2] .. ' == ' .. parser.MULTI_BULK_REPLY)
 
 res = results[2]
 
-print("res[2][1] == " .. yajl.to_string(res[1]))
+print("res[2][1] == " .. cjson.encode(res[1]))
 print("res[2][2] == " .. res[2] .. ' == ' .. parser.MULTI_BULK_REPLY)
 
 --- out
