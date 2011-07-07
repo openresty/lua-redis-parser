@@ -2,7 +2,7 @@ version=0.03
 name=lua-redis-parser
 dist=$(name)-$(version)
 
-.PHONE: all clean dist test
+.PHONY: all clean dist test t
 
 #CC = gcc
 RM = rm -f
@@ -55,6 +55,11 @@ valtest: parser.so
 	if [ ! -d lz ]; then mkdir lz; fi
 	cp parser.so lz/
 	LUA_CPATH="$$HOME/work/lua-cjson-1.0.2/?.so;;" TEST_LUA_USE_VALGRIND=1 prove -r t
+
+t: parser.so
+	if [ ! -d lz ]; then mkdir lz; fi
+	cp parser.so lz/
+	LUA_CPATH="$$HOME/work/lua-cjson-1.0.2/?.so;;" TEST_LUA_USE_VALGRIND=1 prove t/sanity.t
 
 dist:
 	if [ -d $(dist) ]; then rm -r $(dist); fi
