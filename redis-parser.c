@@ -1,4 +1,4 @@
-#define DDEBUG 1
+#define DDEBUG 0
 #include "ddebug.h"
 
 #include <lua.h>
@@ -112,7 +112,8 @@ redis_parse_replies(lua_State *L)
     p = (char *) luaL_checklstring(L, 1, &len);
 
     n = luaL_checknumber(L, 2);
-    dd("n = %d", n);
+
+    dd("n = %d", (int) n);
 
     lua_pop(L, 1);
 

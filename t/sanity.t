@@ -444,3 +444,15 @@ print("res == " .. yajl.to_string(res))
 qq{typ == 5 == 5
 res == ["a","1","Bad argument"]\n}
 
+
+
+=== TEST 34: bug reported by James Hurst
+--- lua
+yajl = require('yajl')
+parser = require("redis.parser")
+reply = "*3\r\n$9\r\nsubscribe\r\n$38\r\nledge:d1d0ed5f3251473795548ab392181d06\r\n:1\r\n*3\r\n$7\r\nmessage\r\n$38\r\nledge:d1d0ed5f3251473795548ab392181d06\r\n$8\r\nfinished\r\n"
+resp = parser.parse_replies(reply, 2)
+print("res == " .. yajl.to_string(resp))
+--- out
+res == [[["subscribe","ledge:d1d0ed5f3251473795548ab392181d06","1"],5],[["message","ledge:d1d0ed5f3251473795548ab392181d06","finished"],5]]
+
