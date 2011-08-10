@@ -78,20 +78,30 @@ This module is originally written for ngx_lua + ngx_redis2:
     https://github.com/agentzh/redis2-nginx-module
 
 Installation
-    # To use /usr/include/lua5.1/ and install to /usr/lib/lua/5.1:
-    make
-    make install
+    Build requirements:
+    - Lua (http://www.lua.org/)
+    Or:
+    - LuaJIT (http://www.luajit.org/)
 
-    To use a different Lua other than /usr/include/lua5.1, use the following:
+    Gnu make is required to build this module.
 
-    make LUA_INC=/opt/lua/include
+    Linux/BSD/Solaris
+        gmake
+        gmake install
 
-    and install this module to a different location than /usr/lib/lua/5.1:
+    Mac OS X
+        make LDFLAGS='-bundle -undefined dynamic_lookup'
+        make install
 
-    make INSTALL_PATH=/opt/lua-exts install
+    If your Lua or LuaJIT is not installed into the system, specify
+    its include directory like this:
 
-    Please edit the Makefile file to use a custom lua and/or install
-    this module into a custom location.
+        make LUA_INCLUDE_DIR=/opt/luajit/include/luajit-2.0
+
+    You can specify a custom path for the installation target:
+        make install LUA_LIB_DIR=/opt/lualib
+
+    The DESTDIR variable is also supported, to ease RPM packaging.
 
 TODO
     redis pipelining response parsing and query support
