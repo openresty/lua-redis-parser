@@ -31,7 +31,7 @@ RM = rm -f
 
 all: parser.so
 
-redis-parser.o: redis-parser.c ddebug.h
+redis-parser.o: ddebug.h
 
 parser.so: redis-parser.o
 	$(CC) $(LDFLAGS) -o $@ $^
