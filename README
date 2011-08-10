@@ -83,14 +83,14 @@ Installation
     Or:
     - LuaJIT (http://www.luajit.org/)
 
-    Gnu make is required to build this module.
+    Gnu make and gcc is required to build this module.
 
     Linux/BSD/Solaris
-        gmake
-        gmake install
+        gmake CC=gcc
+        gmake install CC=gcc
 
     Mac OS X
-        make LDFLAGS='-bundle -undefined dynamic_lookup'
+        make LDFLAGS='-bundle -undefined dynamic_lookup' CC=gcc
         make install
 
     If your Lua or LuaJIT is not installed into the system, specify
