@@ -19,7 +19,7 @@ LUA_INCLUDE_DIR ?= $(PREFIX)/include
 LUA_LIB_DIR ?=     $(PREFIX)/lib/lua/$(LUA_VERSION)
 
 #CFLAGS ?=          -g -Wall -pedantic -fno-inline
-CFLAGS ?=          -g -O3 -Wall
+CFLAGS ?=          -g -O -Wall
 override CFLAGS += -fpic -I$(LUA_INCLUDE_DIR)
 
 INSTALL ?= install
