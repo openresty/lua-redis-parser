@@ -37,8 +37,8 @@ parser.so: redis-parser.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 install:
-	$(INSTALL) -d $(DESTDIR)/$(LUA_LIB_DIR)
-	$(INSTALL) parser.so $(DESTDIR)/$(LUA_LIB_DIR)
+	$(INSTALL) -d $(DESTDIR)/$(LUA_LIB_DIR)/redis
+	$(INSTALL) parser.so $(DESTDIR)/$(LUA_LIB_DIR)/redis
 
 clean:
 	$(RM) *.so *.o redis/*.so
