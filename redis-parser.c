@@ -24,7 +24,7 @@ enum {
 };
 
 
-static const char *redis_reply_typenames = {
+static const char *redis_typenames[] = {
     "bad reply",
     "status reply",
     "error reply",
@@ -50,12 +50,18 @@ static int parse_multi_bulk_reply(lua_State *L, char **src,
         const char *last);
 static size_t get_num_size(size_t i);
 static char *sprintf_num(char *dst, int64_t ui64);
+static int redis_typename(lua_State *L);
+
+
+#define redis_nelems(arr) \
+            (sizeof(arr) / sizeof(arr[0]))
 
 
 static const struct luaL_Reg redis_parser[] = {
     {"parse_reply", redis_parse_reply},
     {"parse_replies", redis_parse_replies},
     {"build_query", redis_build_query},
+    {"typename", redis_typename},
     {NULL, NULL}
 };
 
@@ -653,5 +659,27 @@ sprintf_num(char *dst, int64_t ui64)
     memcpy(dst, p, len);
 
     return dst + len;
+}
+
+
+static int
+redis_typename(lua_State *L)
+{
+    int         typ;
+
+    if (lua_gettop(L) != 1) {
+        return luaL_error(L, "expecting one argument but got %d",
+                lua_gettop(L));
+    }
+
+    typ = (int) luaL_checkinteger(L, 1);
+
+    if (typ < 0 || typ >= redis_nelems(redis_typenames)) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    lua_pushstring(L, redis_typenames[typ]);
+    return 1;
 }
 

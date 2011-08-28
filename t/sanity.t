@@ -15,10 +15,10 @@ __DATA__
 parser = require("redis.parser")
 reply = '+OK'
 res, typ = parser.parse_reply(reply)
-print("typ == " .. typ .. ' == ' .. parser.BAD_REPLY)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.BAD_REPLY)
 print("res == " .. res)
 --- out
-typ == 0 == 0
+typ == 0 == bad reply == 0
 res == bad status reply
 
 
@@ -28,10 +28,10 @@ res == bad status reply
 parser = require("redis.parser")
 reply = '+OK\r\n'
 res, typ = parser.parse_reply(reply)
-print("typ == " .. typ .. ' == ' .. parser.STATUS_REPLY)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.STATUS_REPLY)
 print("res == " .. res)
 --- out
-typ == 1 == 1
+typ == 1 == status reply == 1
 res == OK
 
 
@@ -41,10 +41,10 @@ res == OK
 parser = require("redis.parser")
 reply = '-Bad argument\rHey\r\nblah blah blah\r\n'
 res, typ = parser.parse_reply(reply)
-print("typ == " .. typ .. ' == ' .. parser.ERROR_REPLY)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.ERROR_REPLY)
 print("res == " .. res)
 --- out eval
-"typ == 2 == 2
+"typ == 2 == error reply == 2
 res == Bad argument\rHey\n"
 
 
@@ -54,11 +54,11 @@ res == Bad argument\rHey\n"
 parser = require("redis.parser")
 reply = ':-32\r\n'
 res, typ = parser.parse_reply(reply)
-print("typ == " .. typ .. ' == ' .. parser.INTEGER_REPLY)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.INTEGER_REPLY)
 print("res == " .. res)
 print("res type == " .. type(res))
 --- out
-typ == 3 == 3
+typ == 3 == integer reply == 3
 res == -32
 res type == number
 
@@ -99,10 +99,10 @@ res type == string
 parser = require("redis.parser")
 reply = '$5\r\nhello\r\n'
 res, typ = parser.parse_reply(reply)
-print("typ == " .. typ .. ' == ' .. parser.BULK_REPLY)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.BULK_REPLY)
 print("res == " .. res)
 --- out
-typ == 4 == 4
+typ == 4 == bulk reply == 4
 res == hello
 
 
@@ -256,10 +256,10 @@ cjson = require('cjson')
 parser = require("redis.parser")
 reply = '*1\r\n$1\r\na\r\n'
 res, typ = parser.parse_reply(reply)
-print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.MULTI_BULK_REPLY)
 print("res == " .. cjson.encode(res))
 --- out eval
-qq{typ == 5 == 5
+qq{typ == 5 == multi-bulk reply == 5
 res == ["a"]\n}
 
 
@@ -455,4 +455,15 @@ resp = parser.parse_replies(reply, 2)
 print("res == " .. cjson.encode(resp))
 --- out
 res == [[["subscribe","ledge:d1d0ed5f3251473795548ab392181d06","1"],5],[["message","ledge:d1d0ed5f3251473795548ab392181d06","finished"],5]]
+
+
+
+=== TEST 35: bad typ
+--- lua
+local parser = require "redis.parser"
+print(parser.typename(-1))
+print(parser.typename(6))
+--- out
+nil
+nil
 
