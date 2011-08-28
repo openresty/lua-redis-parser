@@ -6,7 +6,7 @@ lua-redis-parser - Redis reply parser and request constructor library for Lua
 Version
 =======
 
-This document describes lua-redis-parser [v0.09rc4](https://github.com/agentzh/lua-redis-parser/downloads) released on 11 August 2011.
+This document describes lua-redis-parser [v0.09rc5](https://github.com/agentzh/lua-redis-parser/downloads) released on 28 August 2011.
 
 Description
 ===========
@@ -82,6 +82,21 @@ For instance,
     end
 
 
+typename
+--------
+**syntax:** *str = parser.typename(typ)*
+
+Returns the textual representation of the reply type values returned by the [parse_reply](http://wiki.nginx.org/LuaRedisParser#parse_reply) and [parse_replies](http://wiki.nginx.org/LuaRedisParser#parse_replies) functions. Here's the correspondence:
+
+
+    parser.typename(parser.BAD_REPLY)        == "bad reply"
+    parser.typename(parser.INTEGER_REPLY)    == "integer reply"
+    parser.typename(parser.ERROR_REPLY)      == "error reply"
+    parser.typename(parser.STATUS_REPLY)     == "status reply"
+    parser.typename(parser.BULK_REPLY)       == "bulk reply"
+    parser.typename(parser.MULTI_BULK_REPLY) == "multi-bulk reply"
+
+
 build_query
 -----------
 **syntax:** *raw_request = parser.build_query(args)*
@@ -114,6 +129,37 @@ to construct a binary request in the return value. Because the Redis command is 
 Null values should be specified by `parser.null` rather than Lua's `nil` value.
 
 Boolean values will be converted to `1` or `0`, for `true` and `false`, respectively.
+
+Constants
+=========
+
+BAD_REPLY
+---------
+**syntax:** *typ = parser.BAD_REPLY*
+
+INTEGER_REPLY
+-------------
+**syntax:** *typ = parser.INTEGER_REPLY*
+
+ERROR_REPLY
+-----------
+**syntax:** *typ = parser.ERROR_REPLY*
+
+STATUS_REPLY
+------------
+**syntax:** *typ = parser.STATUS_REPLY*
+
+BULK_REPLY
+----------
+**syntax:** *typ = parser.BULK_REPLY*
+
+MULTI_BULK_REPLY
+----------------
+**syntax:** *typ = parser.MULTI_BULK_REPLY*
+
+null
+----
+**syntax:** *val = parser.null*
 
 Background
 ==========
@@ -204,5 +250,5 @@ SEE ALSO
 ========
 * [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule)
 * [HttpRedis2Module](http://wiki.nginx.org/HttpRedis2Module)
-* [Redis official site <http://redis.io/]>
+* [Redis official site](http://redis.io/)
 
