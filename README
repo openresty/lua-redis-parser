@@ -1,108 +1,205 @@
-lua-redis-parser
+NAME
+    lua-redis-parser - Redis reply parser and request constructor library
+    for Lua
 
-This lua library implements a thin and fast redis raw response parser
-that constructs corresponding lua data strucutres, as well as a
-function that constructs redis raw requests.
+Version
+    This document describes lua-redis-parser v0.09rc4
+    (<https://github.com/agentzh/lua-redis-parser/downloads>) released on 11
+    August 2011.
 
-To maximize speed, this module is implemented in pure C.
+Description
+    This lua library implements a thin and fast redis raw response parser
+    that constructs corresponding lua data strucutres, as well as a function
+    that constructs redis raw requests.
 
-Here's the usage of the parse_reply method:
+    To maximize speed, this module is implemented in pure C.
 
-    local parser = require('redis.parser')
+    This library is usually used by Lua code running atop [[HttpLuaModule]]
+    to access redis backends though [[HttpRedis2Module]].
 
-    -- assuming the reply variable holds the (single) redis response
-    --  to be parsed:
-    local res, typ = parser.parse_reply(reply)
+Functions
+    The "parser" variable used below is referring to the variable holding
+    the return value of "require "redis.parser"". In other words, we assume
+    you have written the following code first:
 
-    if typ == parser.BAD_REPLY then
-        -- res is the textual error message from the parser
-    elseif typ == parser.INTEGER_REPLY then
-        -- res is an integer, like 3, returned from the redis server
-    elseif typ == parser.ERROR_REPLY then
-        -- res is the error message from the redis2 server
-    elseif typ == parser.STATUS_REPLY then
-        -- res is the textual message from the redis server
-    elseif typ == parser.BULK_REPLY then
-        --- res is a string for the bulk data
-    elseif typ == parser.MULTI_BULK_REPLY then
-        -- res is a lua (array) table that holds the individual bulks
-    end
+        local parser = require "redis.parser"
 
-You can use the parse_replies method to parse multiple pipelined
-redis responses, for example
+  parse_reply
+    syntax: *res, typ = parser.parse_reply(raw_reply)*
 
-    local parser = require('redis.parser')
+    Parses the single (or the first) raw redis reply from the "raw_reply"
+    string and returns the Lua data structure "res", as well as the reply
+    type "typ".
 
-    -- assuming the replies variable holds n redis responses
-    --  to be parsed:
-    local results = parser.parse_replies(replies, n)
-    for i, result in ipairs(results) do
-        local res = result[1]
-        local typ = result[2]
+    Here is an example:
 
-        -- res and typ have exactly the same meaning as in
-        --  the parse_reply method documented above
-    end
+        local parser = require('redis.parser')
 
-We also have a build_query function that helps construct raw redis requests from
-simple lua values. It simply accepts a lua table, a list of parameters including
-the command name.
+        -- assuming the reply variable holds the (single) redis response
+        --  to be parsed:
+        local res, typ = parser.parse_reply(reply)
 
-Let's check out the complete list of redis 2.0 commands:
+        if typ == parser.BAD_REPLY then
+            -- res is the textual error message from the parser
+        elseif typ == parser.INTEGER_REPLY then
+            -- res is an integer, like 3, returned from the redis server
+        elseif typ == parser.ERROR_REPLY then
+            -- res is the error message from the redis2 server
+        elseif typ == parser.STATUS_REPLY then
+            -- res is the textual message from the redis server
+        elseif typ == parser.BULK_REPLY then
+            --- res is a string for the bulk data
+        elseif typ == parser.MULTI_BULK_REPLY then
+            -- res is a lua (array) table that holds the individual bulks
+        end
 
-   http://redis.io/commands
+  parse_replies
+    syntax: *results = parser.parse_replies(raw_replies)*
 
-For the first command in that list, "APPEND   key value", we can just use
+    Similar to the parse_reply method, but parse multiple pipelined redis
+    replies in the "raw_replies" string argument. Returns a table of all the
+    parsed results where each result is an array-like table consists of two
+    elements, "res" and "typ", which have exactly the same meaning as the
+    return values of the parse_reply function.
 
-local req = parser.build_query({'APPEND', 'some-key', 'some-value'})
+    For instance,
 
-to construct a binary request in the return value. Because the redis
-command is case insensitive, I usually just use 'append', the lower
-case form, as the first element of that list, as in
+        local parser = require "redis.parser"
 
-    local req = parser.build_query({'set', 'foo', 'some value'})
-        -- req is the raw TCP request ready to send to the remote redis server
-        -- over the TCP connection
+        -- assuming the replies variable holds n redis responses
+        --  to be parsed:
+        local results = parser.parse_replies(replies, n)
+        for i, result in ipairs(results) do
+            local res = result[1]
+            local typ = result[2]
 
-null values should be specified by "parser.null" (without quotes) rather
-than Lua's "nil".
+            -- res and typ have exactly the same meaning as in
+            --  the parse_reply method documented above
+        end
 
-Boolean values will be converted to 1 or 0, for true and false, respectively.
+  build_query
+    syntax: *raw_request = parser.build_query(args)*
+
+    Constructs a raw Redis request from simple Lua values. It simply accepts
+    a Lua array-like table, a list of parameters including the command name.
+
+    Please check out the complete list of redis 2.0 commands,
+
+    http://redis.io/commands
+
+    The first command in that list, "APPEND key value", for example, we can
+    just use
+
+        local parser = require "redis.parser"
+
+        local req = parser.build_query({'APPEND', 'some-key', 'some-value'})
+
+    to construct a binary request in the return value. Because the Redis
+    command is case insensitive, I usually just use 'append', the lower case
+    form, as the first element of that list, as in
+
+        local parser = require "redis.parser"
+
+        local req = parser.build_query({'set', 'foo', 'some value'})
+            -- req is the raw TCP request ready to send to the remote redis server
+            -- over the TCP connection
+
+    Null values should be specified by "parser.null" rather than Lua's "nil"
+    value.
+
+    Boolean values will be converted to 1 or 0, for "true" and "false",
+    respectively.
 
 Background
+    This module is originally written for [[HttpLuaModule]] and
+    [[HttpRedis2Module]]:
 
-This module is originally written for ngx_lua + ngx_redis2:
+Report Bugs
+    Although a lot of effort has been put into testing and code tuning,
+    there must be some serious bugs lurking somewhere in this module. So
+    whenever you are bitten by any quirks, please don't hesitate to
 
-    http://github.com/chaoslawful/lua-nginx-module
+    1.  create a ticket on the issue tracking interface
+        (<http://github.com/agentzh/lua-redis-parser/issues>) provided by
+        GitHub,
 
-    https://github.com/agentzh/redis2-nginx-module
+    2.  or send a bug report or even patches to "agentzh@gmail.com".
+
+Source Repository
+    Available on GitHub at agentzh/lua-redis-parser
+    (<http://github.com/agentzh/lua-redis-parser>).
 
 Installation
-    Build requirements:
-    - Lua (http://www.lua.org/)
-    Or:
-    - LuaJIT (http://www.luajit.org/)
+  Build requirements
+    *   Lua (http://www.lua.org/)
+
+    *   or LuaJIT (http://www.luajit.org/)
 
     Gnu make and gcc is required to build this module.
 
-    Linux/BSD/Solaris
+  Linux/BSD/Solaris
         gmake CC=gcc
         gmake install CC=gcc
 
-    Mac OS X
+  Mac OS X
         make LDFLAGS='-bundle -undefined dynamic_lookup' CC=gcc
         make install
 
-    If your Lua or LuaJIT is not installed into the system, specify
-    its include directory like this:
+    If your Lua or LuaJIT is not installed into the system, specify its
+    include directory like this:
 
         make LUA_INCLUDE_DIR=/opt/luajit/include/luajit-2.0
 
     You can specify a custom path for the installation target:
+
         make install LUA_LIB_DIR=/opt/lualib
 
-    The DESTDIR variable is also supported, to ease RPM packaging.
+    The "DESTDIR" variable is also supported, to ease RPM packaging.
 
-TODO
-    redis pipelining response parsing and query support
+    This library is included and enabled by default in the ngx_openresty
+    bundle (<http://openresty.org>).
+
+Author
+    *   Yichun "agentzh" Zhang (章亦春) <agentzh at gmail dot com>
+
+Copyright & License
+    This module is licenced under the BSD license.
+
+    Copyright (C) 2009, 2010, 2011, Taobao Inc., Alibaba Group (
+    http://www.taobao.com ).
+
+    Copyright (C) 2009, 2010, 2011, by Zhang "agentzh" Yichun (章亦春)
+    <agentzh@gmail.com>.
+
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are
+    met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+    *   Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+    IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+    TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+    PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+    HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+    TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+SEE ALSO
+    *   [[HttpLuaModule]]
+
+    *   [[HttpRedis2Module]]
+
+    *   [Redis official site http://redis.io/]
 

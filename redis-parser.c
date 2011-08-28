@@ -17,9 +17,20 @@ enum {
     MULTI_BULK_REPLY    = 5
 };
 
+
 enum {
     PARSE_OK    = 0,
     PARSE_ERROR = 1
+};
+
+
+static const char *redis_reply_typenames = {
+    "bad reply",
+    "status reply",
+    "error reply",
+    "integer reply",
+    "bulk reply",
+    "multi-bulk reply"
 };
 
 
