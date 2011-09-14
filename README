@@ -33,7 +33,7 @@ Functions
 
     Here is an example:
 
-        local parser = require('redis.parser')
+        local parser = require 'redis.parser'
 
         -- assuming the reply variable holds the (single) redis response
         --  to be parsed:
@@ -195,7 +195,7 @@ Installation
     bundle (<http://openresty.org>).
 
 Author
-    *   Yichun "agentzh" Zhang (章亦春) <agentzh at gmail dot com>
+    *   Zhang "agentzh" Yichun (章亦春) <agentzh@gmail.com>
 
 Copyright & License
     This module is licenced under the BSD license.
@@ -232,6 +232,9 @@ Copyright & License
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 SEE ALSO
+    *   Use case: Dynamic Routing Based On Redis
+        (<http://openresty.org/#DynamicRoutingBasedOnRedis>)
+
     *   [[HttpLuaModule]]
 
     *   [[HttpRedis2Module]]

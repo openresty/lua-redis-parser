@@ -38,7 +38,7 @@ Parses the single (or the first) raw redis reply from the `raw_reply` string and
 Here is an example:
 
 
-    local parser = require('redis.parser')
+    local parser = require 'redis.parser'
 
     -- assuming the reply variable holds the (single) redis response
     --  to be parsed:
@@ -225,7 +225,7 @@ This library is included and enabled by default in the [ngx_openresty bundle](ht
 Author
 ======
 
-* Yichun "agentzh" Zhang (章亦春) <agentzh at gmail dot com>
+* Zhang "agentzh" Yichun (章亦春) <agentzh@gmail.com>
 
 Copyright & License
 ===================
@@ -248,6 +248,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 SEE ALSO
 ========
+* Use case: [Dynamic Routing Based On Redis](http://openresty.org/#DynamicRoutingBasedOnRedis)
 * [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule)
 * [HttpRedis2Module](http://wiki.nginx.org/HttpRedis2Module)
 * [Redis official site](http://redis.io/)

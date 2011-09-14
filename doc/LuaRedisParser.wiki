@@ -33,7 +33,7 @@ Parses the single (or the first) raw redis reply from the <code>raw_reply</code>
 Here is an example:
 
 <geshi lang="lua">
-    local parser = require('redis.parser')
+    local parser = require 'redis.parser'
 
     -- assuming the reply variable holds the (single) redis response
     --  to be parsed:
@@ -201,7 +201,7 @@ This library is included and enabled by default in the [http://openresty.org ngx
 
 = Author =
 
-* Yichun "agentzh" Zhang (章亦春) <agentzh at gmail dot com>
+* Zhang "agentzh" Yichun (章亦春) <agentzh@gmail.com>
 
 = Copyright & License =
 
@@ -222,6 +222,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 = SEE ALSO =
+* Use case: [http://openresty.org/#DynamicRoutingBasedOnRedis Dynamic Routing Based On Redis]
 * [[HttpLuaModule]]
 * [[HttpRedis2Module]]
 * [http://redis.io/ Redis official site]

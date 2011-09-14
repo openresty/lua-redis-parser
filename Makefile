@@ -1,7 +1,8 @@
+version=0.09
+
 name=lua-redis-parser
 dist=$(name)-$(version)
 
-version=0.09
 LUA_VERSION =   5.1
 
 # See http://lua-users.org/wiki/BuildingModules for platform specific
