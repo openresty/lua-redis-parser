@@ -6,7 +6,7 @@ lua-redis-parser - Redis reply parser and request constructor library for Lua
 Version
 =======
 
-This document describes lua-redis-parser [v0.09rc5](https://github.com/agentzh/lua-redis-parser/downloads) released on 28 August 2011.
+This document describes lua-redis-parser [v0.09rc5](https://github.com/agentzh/lua-redis-parser/tags) released on 28 August 2011.
 
 Description
 ===========
@@ -187,6 +187,7 @@ Build requirements
 
 * Lua (http://www.lua.org/)
 * or LuaJIT (http://www.luajit.org/)
+* Latest source tarball of this library downloaded from <https://github.com/agentzh/lua-redis-parser/tags>
 
 Gnu make and gcc is required to build this module.
 
