@@ -565,8 +565,6 @@ redis_build_query(lua_State *L)
 
     last = buf;
 
-    lua_pushlstring(L, buf, total);
-
     *last++ = '*';
     last = sprintf_num(last, n);
     *last++ = '\r'; *last++ = '\n';
