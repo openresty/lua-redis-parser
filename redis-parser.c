@@ -36,7 +36,7 @@ static const char *redis_typenames[] = {
 
 #define UINT64_LEN   (sizeof("18446744073709551615") - 1)
 
-static char *redis_null = "null";
+static void *redis_null = NULL;
 
 static int parse_reply_helper(lua_State *L, char **src, size_t len);
 static int redis_parse_reply(lua_State *L);
@@ -248,6 +248,7 @@ parse_reply_helper(lua_State *L, char **src, size_t len)
         if (dst_len == -1) {
             *src = (char *) dst + sizeof("\r\n") - 1;
 
+            /* lua_pushlightuserdata(L, redis_null); */
             lua_pushnil(L);
             lua_pushnumber(L, BULK_REPLY);
             return 2;
@@ -420,6 +421,24 @@ parse_multi_bulk_reply(lua_State *L, char **src, const char *last)
     CHECK_EOF
 
     while (*p != '\r') {
+        if (*p == '-') {
+
+            p++;
+            CHECK_EOF
+
+            if (*p < '0' || *p > '9') {
+                goto invalid;
+            }
+
+            while (*p != '\r') {
+                p++;
+                CHECK_EOF
+            }
+
+            count = -1;
+            break;
+        }
+
         if (*p < '0' || *p > '9') {
             dd("expecting digit, but found %c", *p);
             goto invalid;
@@ -444,6 +463,15 @@ parse_multi_bulk_reply(lua_State *L, char **src, const char *last)
     }
 
     dd("reading the individual bulks");
+
+    if (count == -1) {
+
+        /* lua_pushlightuserdata(L, redis_null); */
+        lua_pushnil(L);
+
+        *src = (char *) p;
+        return PARSE_OK;
+    }
 
     lua_createtable(L, count, 0);
 

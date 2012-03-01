@@ -255,3 +255,33 @@ res[1][2] == 5 == 5
 res[2][1] == ["a"]
 res[2][2] == 5 == 5
 
+
+
+=== TEST 10: nil multi bulk reply and status reply
+--- lua
+parser = require("redis.parser")
+replies = '*-1\r\n+DONE\r\n'
+results = parser.parse_replies(replies, 2)
+print("res count == " .. #results)
+print("res[1] count == " .. #results[1])
+print("res[2] count == " .. #results[2])
+
+local res = results[1]
+
+print("res[1][1] == " .. (res[1] or "nil"))
+print("res[1][2] == " .. res[2] .. ' == ' .. parser.MULTI_BULK_REPLY)
+
+res = results[2]
+
+print("res[2][1] == " .. res[1])
+print("res[2][2] == " .. res[2] .. ' == ' .. parser.STATUS_REPLY)
+
+--- out
+res count == 2
+res[1] count == 2
+res[2] count == 2
+res[1][1] == nil
+res[1][2] == 5 == 5
+res[2][1] == DONE
+res[2][2] == 1 == 1
+

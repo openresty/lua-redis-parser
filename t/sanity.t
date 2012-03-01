@@ -272,9 +272,11 @@ reply = '*4\r\n$1\r\na\r\n$-1\r\n$0\r\n\r\n$5\r\nhello\r\n'
 res, typ = parser.parse_reply(reply)
 print("typ == " .. typ .. ' == ' .. parser.MULTI_BULK_REPLY)
 print("res == " .. cjson.encode(res))
+print("res[2]:", res[2]);
 --- out eval
 qq{typ == 5 == 5
-res == ["a",null,"","hello"]\n}
+res == ["a",null,"","hello"]
+res[2]:\tnil\n}
 
 
 
@@ -466,4 +468,32 @@ print(parser.typename(6))
 --- out
 nil
 nil
+
+
+
+=== TEST 36: empty multi bulk reply (0 bulk)
+--- lua
+cjson = require('cjson')
+parser = require("redis.parser")
+reply = '*0\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. cjson.encode(res))
+--- out eval
+qq{typ == 5 == multi-bulk reply == 5
+res == \{\}\n}
+
+
+
+=== TEST 37: nil multi bulk reply (-1 bulk)
+--- lua
+cjson = require('cjson')
+parser = require("redis.parser")
+reply = '*-1\r\n'
+res, typ = parser.parse_reply(reply)
+print("typ == " .. typ .. ' == ' .. parser.typename(typ) .. ' == ' .. parser.MULTI_BULK_REPLY)
+print("res == " .. cjson.encode(res))
+--- out eval
+qq{typ == 5 == multi-bulk reply == 5
+res == null\n}
 
