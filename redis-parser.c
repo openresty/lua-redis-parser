@@ -586,10 +586,7 @@ redis_build_query(lua_State *L)
         }
     }
 
-    buf = malloc(total);
-    if (buf == NULL) {
-        return luaL_error(L, "out of memory");
-    }
+    buf = lua_newuserdata(L, total); /* lua_newuserdata never returns NULL */
 
     last = buf;
 
@@ -646,8 +643,6 @@ redis_build_query(lua_State *L)
     }
 
     lua_pushlstring(L, buf, total);
-
-    free(buf);
 
     return 1;
 }
