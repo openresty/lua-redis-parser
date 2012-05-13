@@ -8,6 +8,9 @@
 #include <string.h>
 
 
+#define LUA_REDIS_PARSER_VERSION "0.09"
+
+
 enum {
     BAD_REPLY           = 0,
     STATUS_REPLY        = 1,
@@ -70,6 +73,9 @@ int
 luaopen_redis_parser(lua_State *L)
 {
     luaL_register(L, "redis.parser", redis_parser);
+
+    lua_pushliteral(L, LUA_REDIS_PARSER_VERSION);
+    lua_setfield(L, -2, "_VERSION");
 
     lua_pushlightuserdata(L, redis_null);
     lua_setfield(L, -2, "null");
