@@ -497,3 +497,15 @@ print("res == " .. cjson.encode(res))
 qq{typ == 5 == multi-bulk reply == 5
 res == null\n}
 
+
+
+=== TEST 38: many query arguments
+--- lua
+cjson = require('cjson')
+parser = require("redis.parser")
+q = {"a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a"}
+local query = parser.build_query(q)
+print("query == " .. cjson.encode(query))
+--- out eval
+"query == \"*44\\r\\n" . ("\$1\\r\\na\\r\\n" x 44) . "\"\n"
+
