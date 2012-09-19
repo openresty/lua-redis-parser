@@ -590,6 +590,8 @@ redis_build_query(lua_State *L)
                 return luaL_error(L, "parameter %d is not a string, number, "
                         "redis.parser.null, or boolean value", i);
         }
+
+        lua_pop(L, 1);
     }
 
     buf = lua_newuserdata(L, total); /* lua_newuserdata never returns NULL */
@@ -642,6 +644,8 @@ redis_build_query(lua_State *L)
                 /* cannot reach here */
                 break;
         }
+
+        lua_pop(L, 1);
     }
 
     if (last - buf != (ssize_t) total) {

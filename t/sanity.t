@@ -503,9 +503,12 @@ res == null\n}
 --- lua
 cjson = require('cjson')
 parser = require("redis.parser")
-q = {"a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a","a"}
+q = {}
+for i = 1,2048 do
+    table.insert(q, "a")
+end
 local query = parser.build_query(q)
-print("query == " .. cjson.encode(query))
---- out eval
-"query == \"*44\\r\\n" . ("\$1\\r\\na\\r\\n" x 44) . "\"\n"
+print(string.len(query))
+--- out
+14343
 
