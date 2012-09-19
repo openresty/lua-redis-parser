@@ -8,7 +8,7 @@
 #include <string.h>
 
 
-#define LUA_REDIS_PARSER_VERSION "0.09"
+#define LUA_REDIS_PARSER_VERSION "0.10"
 
 
 enum {
