@@ -8,7 +8,7 @@ use Test::LongString;
 
 our @EXPORT = qw( run_tests );
 
-$ENV{LUA_CPATH} = "?.so;" . ($ENV{LUA_CPATH} || "") . ';' . "/home/lz/luax/?.so;;";
+$ENV{LUA_CPATH} = "?.so;" . ($ENV{LUA_CPATH} || "") . ';' . "/usr/local/openresty-debug/lualib/?.so;/usr/local/openresty/lualib/?.so;;";
 #$ENV{LUA_PATH} = ($ENV{LUA_PATH} || "" ) . ';' . getcwd . "/runtime/?.lua" . ';;';
 
 sub run_test ($) {
