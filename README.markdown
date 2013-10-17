@@ -1,7 +1,41 @@
+<!---
+Don't edit this file manually! Instead you should generate it by using:
+    wiki2markdown.pl doc/LuaRedisParser.wiki
+-->
+
 NAME
 ====
 
 lua-redis-parser - Redis reply parser and request constructor library for Lua
+
+Table of Contents
+=================
+
+* [Version](#version)
+* [Description](#description)
+* [Functions](#functions)
+    * [parse_reply](#parse_reply)
+    * [parse_replies](#parse_replies)
+    * [typename](#typename)
+    * [build_query](#build_query)
+* [Constants](#constants)
+    * [BAD_REPLY](#bad_reply)
+    * [INTEGER_REPLY](#integer_reply)
+    * [ERROR_REPLY](#error_reply)
+    * [STATUS_REPLY](#status_reply)
+    * [BULK_REPLY](#bulk_reply)
+    * [MULTI_BULK_REPLY](#multi_bulk_reply)
+    * [null](#null)
+* [Background](#background)
+* [Report Bugs](#report-bugs)
+* [Source Repository](#source-repository)
+* [Installation](#installation)
+    * [Build requirements](#build-requirements)
+    * [Linux/BSD/Solaris](#linuxbsdsolaris)
+    * [Mac OS X](#mac-os-x)
+* [Author](#author)
+* [Copyright & License](#copyright--license)
+* [SEE ALSO](#see-also)
 
 Version
 =======
@@ -17,8 +51,8 @@ function that constructs redis raw requests.
 
 To maximize speed, this module is implemented in pure C.
 
-This library is usually used by Lua code running atop [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule) to access
-redis backends though [HttpRedis2Module](http://wiki.nginx.org/HttpRedis2Module).
+This library is usually used by Lua code running atop [lua-nginx-module](http://github.com/chaoslawful/lua-nginx-module) to access
+redis backends though [redis2-nginx-module](http://github.com/agentzh/redis2-nginx-module).
 
 Functions
 =========
@@ -28,6 +62,8 @@ The `parser` variable used below is referring to the variable holding the return
 
     local parser = require "redis.parser"
 
+
+[Back to TOC](#table-of-contents)
 
 parse_reply
 -----------
@@ -59,11 +95,13 @@ Here is an example:
     end
 
 
+[Back to TOC](#table-of-contents)
+
 parse_replies
 -------------
 **syntax:** *results = parser.parse_replies(raw_replies)*
 
-Similar to the [parse_reply](http://wiki.nginx.org/LuaRedisParser#parse_reply) method, but parse multiple pipelined redis replies in the `raw_replies` string argument. Returns a table of all the parsed results where each result is an array-like table consists of two elements, `res` and `typ`, which have exactly the same meaning as the return values of the [parse_reply](http://wiki.nginx.org/LuaRedisParser#parse_reply) function.
+Similar to the [parse_reply](#parse_reply) method, but parse multiple pipelined redis replies in the `raw_replies` string argument. Returns a table of all the parsed results where each result is an array-like table consists of two elements, `res` and `typ`, which have exactly the same meaning as the return values of the [parse_reply](#parse_reply) function.
 
 For instance,
 
@@ -82,11 +120,13 @@ For instance,
     end
 
 
+[Back to TOC](#table-of-contents)
+
 typename
 --------
 **syntax:** *str = parser.typename(typ)*
 
-Returns the textual representation of the reply type values returned by the [parse_reply](http://wiki.nginx.org/LuaRedisParser#parse_reply) and [parse_replies](http://wiki.nginx.org/LuaRedisParser#parse_replies) functions. Here's the correspondence:
+Returns the textual representation of the reply type values returned by the [parse_reply](#parse_reply) and [parse_replies](#parse_replies) functions. Here's the correspondence:
 
 
     parser.typename(parser.BAD_REPLY)        == "bad reply"
@@ -96,6 +136,8 @@ Returns the textual representation of the reply type values returned by the [par
     parser.typename(parser.BULK_REPLY)       == "bulk reply"
     parser.typename(parser.MULTI_BULK_REPLY) == "multi-bulk reply"
 
+
+[Back to TOC](#table-of-contents)
 
 build_query
 -----------
@@ -130,41 +172,61 @@ Null values should be specified by `parser.null` rather than Lua's `nil` value.
 
 Boolean values will be converted to `1` or `0`, for `true` and `false`, respectively.
 
+[Back to TOC](#table-of-contents)
+
 Constants
 =========
+
+[Back to TOC](#table-of-contents)
 
 BAD_REPLY
 ---------
 **syntax:** *typ = parser.BAD_REPLY*
 
+[Back to TOC](#table-of-contents)
+
 INTEGER_REPLY
 -------------
 **syntax:** *typ = parser.INTEGER_REPLY*
+
+[Back to TOC](#table-of-contents)
 
 ERROR_REPLY
 -----------
 **syntax:** *typ = parser.ERROR_REPLY*
 
+[Back to TOC](#table-of-contents)
+
 STATUS_REPLY
 ------------
 **syntax:** *typ = parser.STATUS_REPLY*
+
+[Back to TOC](#table-of-contents)
 
 BULK_REPLY
 ----------
 **syntax:** *typ = parser.BULK_REPLY*
 
+[Back to TOC](#table-of-contents)
+
 MULTI_BULK_REPLY
 ----------------
 **syntax:** *typ = parser.MULTI_BULK_REPLY*
+
+[Back to TOC](#table-of-contents)
 
 null
 ----
 **syntax:** *val = parser.null*
 
+[Back to TOC](#table-of-contents)
+
 Background
 ==========
 
-This module is originally written for [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule) and [HttpRedis2Module](http://wiki.nginx.org/HttpRedis2Module):
+This module is originally written for [lua-nginx-module](http://github.com/chaoslawful/lua-nginx-module) and [redis2-nginx-module](http://github.com/agentzh/redis2-nginx-module):
+
+[Back to TOC](#table-of-contents)
 
 Report Bugs
 ===========
@@ -174,13 +236,19 @@ Although a lot of effort has been put into testing and code tuning, there must b
 1. create a ticket on the [issue tracking interface](http://github.com/agentzh/lua-redis-parser/issues) provided by GitHub,
 1. or send a bug report or even patches to `agentzh@gmail.com`.
 
+[Back to TOC](#table-of-contents)
+
 Source Repository
 =================
 
 Available on GitHub at [agentzh/lua-redis-parser](http://github.com/agentzh/lua-redis-parser).
 
+[Back to TOC](#table-of-contents)
+
 Installation
 ============
+
+[Back to TOC](#table-of-contents)
 
 Build requirements
 ------------------
@@ -191,6 +259,8 @@ Build requirements
 
 Gnu make and gcc is required to build this module.
 
+[Back to TOC](#table-of-contents)
+
 Linux/BSD/Solaris
 -----------------
 
@@ -198,6 +268,8 @@ Linux/BSD/Solaris
     gmake CC=gcc
     gmake install CC=gcc
 
+
+[Back to TOC](#table-of-contents)
 
 Mac OS X
 --------
@@ -223,10 +295,14 @@ The `DESTDIR` variable is also supported, to ease RPM packaging.
 
 This library is included and enabled by default in the [ngx_openresty bundle](http://openresty.org).
 
+[Back to TOC](#table-of-contents)
+
 Author
 ======
 
 * Zhang "agentzh" Yichun (章亦春) <agentzh@gmail.com>
+
+[Back to TOC](#table-of-contents)
 
 Copyright & License
 ===================
@@ -247,10 +323,12 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+[Back to TOC](#table-of-contents)
+
 SEE ALSO
 ========
 * Use case: [Dynamic Routing Based On Redis](http://openresty.org/#DynamicRoutingBasedOnRedis)
-* [HttpLuaModule](http://wiki.nginx.org/HttpLuaModule)
-* [HttpRedis2Module](http://wiki.nginx.org/HttpRedis2Module)
+* [lua-nginx-module](http://github.com/chaoslawful/lua-nginx-module)
+* [redis2-nginx-module](http://github.com/agentzh/redis2-nginx-module)
 * [Redis official site](http://redis.io/)
 
