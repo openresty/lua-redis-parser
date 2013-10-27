@@ -59,9 +59,10 @@ Functions
 
 The `parser` variable used below is referring to the variable holding the return value of `require "redis.parser"`. In other words, we assume you have written the following code first:
 
+```lua
 
     local parser = require "redis.parser"
-
+```
 
 [Back to TOC](#table-of-contents)
 
@@ -73,6 +74,7 @@ Parses the single (or the first) raw redis reply from the `raw_reply` string and
 
 Here is an example:
 
+```lua
 
     local parser = require 'redis.parser'
 
@@ -93,7 +95,7 @@ Here is an example:
     elseif typ == parser.MULTI_BULK_REPLY then
         -- res is a lua (array) table that holds the individual bulks
     end
-
+```
 
 [Back to TOC](#table-of-contents)
 
@@ -105,6 +107,7 @@ Similar to the [parse_reply](#parse_reply) method, but parse multiple pipelined 
 
 For instance,
 
+```lua
 
     local parser = require "redis.parser"
 
@@ -118,7 +121,7 @@ For instance,
         -- res and typ have exactly the same meaning as in
         --  the parse_reply method documented above
     end
-
+```
 
 [Back to TOC](#table-of-contents)
 
@@ -128,6 +131,7 @@ typename
 
 Returns the textual representation of the reply type values returned by the [parse_reply](#parse_reply) and [parse_replies](#parse_replies) functions. Here's the correspondence:
 
+```lua
 
     parser.typename(parser.BAD_REPLY)        == "bad reply"
     parser.typename(parser.INTEGER_REPLY)    == "integer reply"
@@ -135,7 +139,7 @@ Returns the textual representation of the reply type values returned by the [par
     parser.typename(parser.STATUS_REPLY)     == "status reply"
     parser.typename(parser.BULK_REPLY)       == "bulk reply"
     parser.typename(parser.MULTI_BULK_REPLY) == "multi-bulk reply"
-
+```
 
 [Back to TOC](#table-of-contents)
 
@@ -152,21 +156,23 @@ Please check out the complete list of redis 2.0 commands,
 
 The first command in that list, "APPEND   key value", for example, we can just use
 
+```lua
 
     local parser = require "redis.parser"
 
     local req = parser.build_query({'APPEND', 'some-key', 'some-value'})
-
+```
 
 to construct a binary request in the return value. Because the Redis command is case insensitive, I usually just use 'append', the lower case form, as the first element of that list, as in
 
+```lua
 
     local parser = require "redis.parser"
 
     local req = parser.build_query({'set', 'foo', 'some value'})
         -- req is the raw TCP request ready to send to the remote redis server
         -- over the TCP connection
-
+```
 
 Null values should be specified by `parser.null` rather than Lua's `nil` value.
 
@@ -264,32 +270,36 @@ Gnu make and gcc is required to build this module.
 Linux/BSD/Solaris
 -----------------
 
+```bash
 
     gmake CC=gcc
     gmake install CC=gcc
-
+```
 
 [Back to TOC](#table-of-contents)
 
 Mac OS X
 --------
 
+```bash
 
     make LDFLAGS='-bundle -undefined dynamic_lookup' CC=gcc
     make install
-
+```
 
 If your Lua or LuaJIT is not installed into the system, specify its include directory like this:
 
+```bash
 
     make LUA_INCLUDE_DIR=/opt/luajit/include/luajit-2.0
-
+```
 
 You can specify a custom path for the installation target:
 
+```bash
 
     make install LUA_LIB_DIR=/opt/lualib
-
+```
 
 The `DESTDIR` variable is also supported, to ease RPM packaging.
 
