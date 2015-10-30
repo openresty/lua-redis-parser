@@ -34,6 +34,9 @@ all: parser.so
 
 redis-parser.o: ddebug.h
 
+.c.o:
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(BUILD_CFLAGS) -o $@ $<
+
 parser.so: redis-parser.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
