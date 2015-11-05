@@ -1,8 +1,3 @@
-<!---
-Don't edit this file manually! Instead you should generate it by using:
-    wiki2markdown.pl doc/LuaRedisParser.wiki
--->
-
 NAME
 ====
 
@@ -310,7 +305,7 @@ This library is included and enabled by default in the [ngx_openresty bundle](ht
 Author
 ======
 
-* Zhang "agentzh" Yichun (章亦春) <agentzh@gmail.com>
+* Yichun "agentzh" Zhang (章亦春) <agentzh@gmail.com>
 
 [Back to TOC](#table-of-contents)
 
@@ -319,9 +314,7 @@ Copyright & License
 
 This module is licenced under the BSD license.
 
-Copyright (C) 2009, 2010, 2011, Taobao Inc., Alibaba Group ( <http://www.taobao.com> ).
-
-Copyright (C) 2009, 2010, 2011, by Zhang "agentzh" Yichun (章亦春) <agentzh@gmail.com>.
+Copyright (C) 2009-2015, by Yichun "agentzh" Zhang (章亦春) <agentzh@gmail.com>.
 
 All rights reserved.
 
