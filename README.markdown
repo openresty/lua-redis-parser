@@ -298,7 +298,7 @@ You can specify a custom path for the installation target:
 
 The `DESTDIR` variable is also supported, to ease RPM packaging.
 
-This library is included and enabled by default in the [ngx_openresty bundle](http://openresty.org).
+This library is included and enabled by default in the [OpenResty bundle](http://openresty.org).
 
 [Back to TOC](#table-of-contents)
 
@@ -314,7 +314,7 @@ Copyright & License
 
 This module is licenced under the BSD license.
 
-Copyright (C) 2009-2015, by Yichun "agentzh" Zhang (章亦春) <agentzh@gmail.com>.
+Copyright (C) 2009-2016, by Yichun "agentzh" Zhang (章亦春) <agentzh@gmail.com>, CloudFlare Inc.
 
 All rights reserved.
 
