@@ -544,7 +544,7 @@ redis_build_query(lua_State *L)
 
     luaL_checktype(L, 1, LUA_TTABLE);
 
-    n = luaL_getn(L, 1);
+    n = lua_objlen(L, 1);
 
     if (n == 0) {
         return luaL_error(L, "empty input param table");
