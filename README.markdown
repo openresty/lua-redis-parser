@@ -35,7 +35,7 @@ Table of Contents
 Version
 =======
 
-This document describes lua-redis-parser [v0.09rc5](https://github.com/agentzh/lua-redis-parser/tags) released on 28 August 2011.
+This document describes lua-redis-parser [v0.13](https://github.com/agentzh/lua-redis-parser/tags) released on 8 April 2017.
 
 Description
 ===========
@@ -314,7 +314,7 @@ Copyright & License
 
 This module is licenced under the BSD license.
 
-Copyright (C) 2009-2016, by Yichun "agentzh" Zhang (章亦春) <agentzh@gmail.com>, CloudFlare Inc.
+Copyright (C) 2009-2017, by Yichun "agentzh" Zhang (章亦春) <agentzh@gmail.com>, OpenResty Inc.
 
 All rights reserved.
 

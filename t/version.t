@@ -15,5 +15,4 @@ __DATA__
 parser = require("redis.parser")
 print(parser._VERSION)
 --- out
-0.10
-
+0.13

@@ -1,4 +1,6 @@
+#ifndef DDEBUG
 #define DDEBUG 0
+#endif
 #include "ddebug.h"
 
 #include <lua.h>
@@ -8,7 +10,7 @@
 #include <string.h>
 
 
-#define LUA_REDIS_PARSER_VERSION "0.10"
+#define LUA_REDIS_PARSER_VERSION "0.13"
 
 
 enum {
