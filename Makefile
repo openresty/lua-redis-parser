@@ -9,19 +9,19 @@ LUA_VERSION =   5.1
 # details.
 
 ## Linux/BSD
-PREFIX ?=          /usr/local
+PREFIX ?=          $(shell pkg-config luajit --variable=prefix)
 LDFLAGS +=         -shared
 
 ## OSX (Macports)
 #PREFIX ?=          /opt/local
 #LDFLAGS +=         -bundle -undefined dynamic_lookup
 
-LUA_INCLUDE_DIR ?= $(PREFIX)/include
-LUA_LIB_DIR ?=     $(PREFIX)/lib/lua/$(LUA_VERSION)
+LUA_INCLUDE_DIR ?= $(shell pkg-config luajit --cflags-only-I)
+LUA_LIB_DIR ?=     $(shell pkg-config luajit --variable=INSTALL_CMOD)
 
 #CFLAGS ?=          -g -Wall -pedantic -fno-inline
 CFLAGS ?=          -g -O -Wall
-override CFLAGS += -fpic -I$(LUA_INCLUDE_DIR)
+override CFLAGS += -fpic $(LUA_INCLUDE_DIR)
 
 INSTALL ?= install
 
