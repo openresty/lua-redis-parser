@@ -23,6 +23,7 @@ install:
             cd ./luajit2 || exit 1
             make -j$JOBS CCDEBUG=-g Q= PREFIX=$LUAJIT_PREFIX CC=$CC XCFLAGS='-DLUA_USE_APICHECK -DLUA_USE_ASSERT'
             sudo make install > build.log 2>&1 || (cat build.log && exit 1)
+            cd ../ || exit 1
         fi
     - >
         if [ -n "$LUA" ]; then
