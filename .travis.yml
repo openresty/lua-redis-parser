@@ -8,14 +8,9 @@ language: c
 compiler:
   - gcc
 
-addons:
-  apt:
-    packages:
-    - liblua5.1-0-dev
-
 env:
   matrix:
-    - LUA=lua5.1-dev LUA_DEV=liblua5.1-dev LUA_INCLUDE_DIR=/usr/include/lua5.1 LUA_CMODULE_DIR=/usr/lib/lua/5.1 LUALIB=-llua5.1
+    - LUA=liblua5.1-dev LUA_DEV=liblua5.1-dev LUA_INCLUDE_DIR=/usr/include/lua5.1 LUA_CMODULE_DIR=/usr/lib/lua/5.1 LUALIB=-llua5.1
     - LUA=libluajit-5.1-dev LUA_DEV=libluajit-5.1-dev LUA_INCLUDE_DIR=/usr/include/luajit-2.0 LUA_CMODULE_DIR=/usr/lib/lua/5.1 LUALIB=-lluajit-5.1
 
 before_install:
