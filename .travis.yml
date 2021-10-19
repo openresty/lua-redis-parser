@@ -17,14 +17,14 @@ before_install:
     - git clone https://github.com/openresty/lua-cjson.git
 
 install:
-    - if [ -n "$LUAJIT" ]; then
-        git clone -b v2.1-agentzh https://github.com/openresty/luajit2.git
-        cd ./luajit2
-        make -j$JOBS CCDEBUG=-g Q= PREFIX=$LUAJIT_PREFIX CC=$CC XCFLAGS='-DLUA_USE_APICHECK -DLUA_USE_ASSERT'
-        sudo make install > build.log 2>&1 || (cat build.log && exit 1)
+    - if [ -n "$LUAJIT" ]; then \
+        git clone -b v2.1-agentzh https://github.com/openresty/luajit2.git; \
+        cd ./luajit2 || exit 1; \
+        make -j$JOBS CCDEBUG=-g Q= PREFIX=$LUAJIT_PREFIX CC=$CC XCFLAGS='-DLUA_USE_APICHECK -DLUA_USE_ASSERT'; \
+        sudo make install > build.log 2>&1 || (cat build.log && exit 1); \
     fi
-    - if [ -n "$LUA" ]; then
-        sudo apt-get install -qq -y liblua5.1-dev
+    - if [ -n "$LUA" ]; then \
+        sudo apt-get install -qq -y liblua5.1-dev; \
     fi
     - sudo apt-get install -qq -y luarocks cppcheck valgrind
     - sudo apt-get install -qq -y cpanminus libipc-run3-perl > build.log 2>&1 || (cat build.log && exit 1)
