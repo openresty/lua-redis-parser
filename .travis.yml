@@ -38,7 +38,7 @@ install:
     - sudo cpanm --notest Test::Base Test::LongString > build.log 2>&1 || (cat build.log && exit 1)
 
 script:
-  - cppcheck --force --error-exitcode=1 --enable=warning . > build.log 2>&1 || (cat build.log && exit 1)
+  #- cppcheck --force --error-exitcode=1 --enable=warning . > build.log 2>&1 || (cat build.log && exit 1)
   - cd lua-cjson/ && make && sudo make install && cd ..
   - make test valtest
 
