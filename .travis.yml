@@ -35,6 +35,7 @@ install:
         fi
     - sudo apt-get install -qq -y luarocks cppcheck valgrind
     - sudo apt-get install -qq -y cpanminus libipc-run3-perl > build.log 2>&1 || (cat build.log && exit 1)
+    - cpanm --sudo --notest Test::Nginx IPC::Run Test2::Util > build.log 2>&1 || (cat build.log && exit 1)
     - sudo cpanm --notest Test::Base Test::LongString > build.log 2>&1 || (cat build.log && exit 1)
 
 script:
